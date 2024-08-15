@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVPOS - Reports</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+        }
+        nav {
+            background-color: #4CAF50;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+        nav ul li {
+            width: 100%;
+            margin: 20px 0;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: #45a049;
+        }
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            color: #4CAF50;
+        }
+        header button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        header button:hover {
+            background-color: #45a049;
+        }
+        section {
+            margin-top: 20px;
+        }
+        .report-type {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .report-type button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .report-type button:hover {
+            background-color: #45a049;
+        }
+        .report-content {
+            display: none;
+        }
+        .report-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="/t">Purchases</a></li>
+            <li><a href="/sales">Sales</a></li>
+            <li><a href="/customers">Customers</a></li>
+            <li><a href="/rep">Reports</a></li>
+
+        </ul>
+    </nav>
+    <main>
+        <header>
+            <h1>DEVPOS - Reports</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
+        <section>
+         <p>From  <input type="date" name="startD">  -to-  <input type="date" name="endD"></p>
+            <div class="report-type">
+                <button onclick="showReport('dailySales')">Daily Sales</button>
+                <button onclick="showReport('paymentMode')">Mode of Payment</button>
+                <button onclick="showReport('department')">Department</button>
+                <button onclick="showReport('stockRemaining')">Remaining Stock</button>
+                <button onclick="showReport('stockSold')">Sold Stock</button>
+                <button onclick="showReport('otherReports')">Other Reports</button>
+            </div>
+            <div id="dailySales" class="report-content">
+                <h2>Daily Sales Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sale ID</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Daily sales data goes here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="paymentMode" class="report-content">
+                <h2>Mode of Payment Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Payment Mode</th>
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Mode of payment data goes here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="department" class="report-content">
+                <h2>Department Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Department sales data goes here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="stockRemaining" class="report-content">
+                <h2>Remaining Stock Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Quantity Remaining</th>
+                            <th>Last Restocked</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Remaining stock data goes here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="stockSold" class="report-content">
+                <h2>Sold Stock Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Quantity Sold</th>
+                            <th>Date Sold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sold stock data goes here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="otherReports" class="report-content">
+                <h2>Other Reports</h2>
+                <p>Additional reports can be added here.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function showReport(reportId) {
+            const reports = document.querySelectorAll('.report-content');
+            reports.forEach(report => {
+                report.classList.remove('active');
+            });
+            document.getElementById(reportId).classList.add('active');
+        }
+
+        function logout() {
+            // Add your logout functionality here
+        }
+    </script>
+</body>
+</html>

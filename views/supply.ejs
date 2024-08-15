@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVPOS - Supplier Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+        }
+        nav {
+            background-color: #4CAF50;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+        nav ul li {
+            width: 100%;
+            margin: 20px 0;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: #45a049;
+        }
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            color: #4CAF50;
+        }
+        header button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        header button:hover {
+            background-color: #45a049;
+        }
+        section {
+            margin-top: 20px;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .card table, th, td {
+            border: 1px solid #ddd;
+        }
+        .card th, .card td {
+            padding: 10px;
+            text-align: left;
+        }
+        .card th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .actions button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .actions button.add {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .actions button.edit {
+            background-color: #FFC107;
+            color: black;
+        }
+        .actions button.delete {
+            background-color: #f44336;
+            color: white;
+        }
+        .actions button:hover {
+            opacity: 0.8;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+        }
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+        .modal-content .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .modal-content .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-content .actions {
+            text-align: right;
+        }
+        .modal-content .actions button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .modal-content .actions button.save {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .modal-content .actions button.cancel {
+            background-color: #f44336;
+            color: white;
+        }
+        .modal-content .actions button.save:hover {
+            background-color: #45a049;
+        }
+        .modal-content .actions button.cancel:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#Purchases">Purchases</a></li>
+            <li><a href="#sales">Sales</a></li>
+            <li><a href="#customers">Customers</a></li>
+            <li><a href="#reports">Reports</a></li>
+            <li><a href="#users">Users</a></li>
+            <li><a href="#settings">Settings</a></li>
+            <li><a href="#suppliers">Suppliers</a></li>
+        </ul>
+    </nav>
+    <main>
+        <header>
+            <h1>DEVPOS - Supplier Management</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
+        <section>
+            <!-- Supplier Overview Card -->
+            <div class="card">
+                <h3>Suppliers</h3>
+                <div class="actions">
+                    <button class="add" onclick="openSupplierModal()">Add Supplier</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Supplier ID</th>
+                            <th>Supplier Name</th>
+                            <th>Contact</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th colspan="2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Example Supplier Row -->
+                        <%newsupps.forEach((nsp)=>{ %>
+                            <tr>
+                                <td><%=nsp.s_id %>-QWR</td>
+                                <td><%=nsp.s_name %></td>
+                                <td><%=nsp.s_contact%></td>
+                                <td><%=nsp.s_phone %></td>
+                                <td><%=nsp.s_email %></td>
+                                <td><a href="/view?id=<%=nsp.p_id %>">View</a></td>
+                                <td><a href="/change?id=<%=nsp.p_id %>">update</a></td>
+                            </tr>
+                        <% }) %>
+                        <!-- Additional rows would be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Supplier Modal -->
+        <div id="supplierModal" class="modal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Add Supplier</h2>
+                  <form action="/addsup" method="post">
+                    <!-- <div class="form-group">
+                        <label for="supplierId">Supplier ID</label>
+                        <input type="text" id="supplierId" placeholder="Enter supplier ID">
+                    </div> -->
+                    <div class="form-group">
+                        <label for="supplierName">Supplier Name</label>
+                        <input type="text" name="name" id="supplierName" placeholder="Enter supplier name">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact">Contact</label>
+                        <input type="text" name="contact" id="contact" placeholder="Enter contact person">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" name="phone" id="phone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" id="email" placeholder="Enter email address">
+                    </div>
+                    <div class="actions">
+                        <button class="save" onclick="saveSupplier()">Save</button>
+                       
+                    </div>
+                  </form>
+             
+                <button class="cancel" onclick="closeSupplierModal()">Cancel</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function openSupplierModal(supplierId) {
+            // Fill in the modal fields with supplier data if editing
+            if (supplierId) {
+                document.getElementById('modalTitle').innerText = 'Edit Supplier';
+                // Fetch and populate supplier data here
+            } else {
+                document.getElementById('modalTitle').innerText = 'Add Supplier';
+                // Clear modal fields for new entry
+            }
+            document.getElementById('supplierModal').style.display = 'flex';
+        }
+
+        function closeSupplierModal() {
+            document.getElementById('supplierModal').style.display = 'none';
+        }
+
+
+      
+    </script>
+</body>
+</html>

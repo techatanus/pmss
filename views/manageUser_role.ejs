@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Configuration Page</title>
+    <link rel="stylesheet" href="#">
+    <style>
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sidebar {
+    background-color:green;
+    color: #fff;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.main-menu, .sub-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.main-menu li, .sub-menu li {
+    margin: 0 10px;
+}
+
+.main-menu li a, .sub-menu li a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+}
+
+.main-menu li a:hover, .sub-menu li a:hover {
+    background-color: #444;
+    border-radius: 4px;
+}
+
+hr {
+    border: 1px solid #555;
+    margin: 10px 0;
+}
+
+.content {
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    flex: 1;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+ .form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display:
+    font-weight: bold;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.form-group input[type="file"] {
+    border: none;
+} 
+
+.required {
+    color: red;
+}
+
+.form-actions {
+    margin-top: 20px;
+}
+
+.form-actions button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-actions button[type="submit"] {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.form-actions button[type="button"] {
+    background-color: #dc3545;
+    color: #fff;
+    margin-left: 10px;
+}
+
+ .roles {
+    margin-left: 100px;
+    margin-top: 60px;
+} 
+
+    </style>
+</head>
+<body>
+    <div class="container">
+          <nav class="sidebar">
+            <ul class="main-menu">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Employees</a></li>
+                <li><a href="#">Taxes</a></li>
+                <!-- <li><a href="#">Attributes</a></li> -->
+                <!-- <li><a href="#">Expenses Categories</a></li> -->
+                <li><a href="#">Configuration</a></li>
+            </ul>
+            <hr>
+            <ul class="sub-menu">
+                <li><a href="/info">Information</a></li>
+                <li><a href="/general">General</a></li>
+                <li><a href="/taxes">Tax</a></li>
+                <li><a href="/localization">Localization</a></li>
+                <li><a href="/barcode">Barcode</a></li>
+                <li><a href="#">Stock</a></li>
+                <li><a href="/receipt">Receipt</a></li>
+                <li><a href="/invoices">Invoice</a></li>
+                <li><a href="/manage">Manage-user role</a></li>
+                <li><a href="/tableSetting">Table</a></li>
+                <li><a href="/con">Setup & Conf</a></li>
+            </ul>
+        </nav>
+ 
+        <section class="roles">
+            <label for="department">Select Department    </label>
+               <select name="department" id="" style="width: 700px; height: 30px;">
+                <option value="cashiers">Cashiers</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+                <option value="superAdmin">Super Admin</option>
+                <option value="stockManager">Stock Manager</option>
+               </select>
+               <form action="#" method="post">
+                <!-- Permissions for Cashier -->
+                <h3>Cashier</h3>
+                <p>
+                    <input type="checkbox" name="manageSales" id="">
+                    <label for="">Manage Sales</label>
+                    <input type="checkbox" name="viewReports" id="">
+                    <label for="">View Reports</label>
+                    <input type="checkbox" name="PrintReceipt" id="">
+                    <label for="">Print Receipt</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for Manager -->
+                <h3>Manager</h3>
+                <p>
+                    <input type="checkbox" name="viewUsers" id="">
+                    <label for="">View Users</label>
+                    <input type="checkbox" name="manageStock" id="">
+                    <label for="">Manage Stock</label>
+                    <input type="checkbox" name="editReports" id="">
+                    <label for="">Edit Reports</label>
+                    <input type="checkbox" name="manageSales" id="">
+                    <label for="">Manage Sales</label>
+                    <input type="checkbox" name="manageSuppliers" id="">
+                    <label for="">Manage Suppliers</label>
+                    <input type="checkbox" name="manageCustomers" id="">
+                    <label for="">Manage Customers</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for Admin -->
+                <h3>Admin</h3>
+                <p>
+                    <input type="checkbox" name="viewUsers" id="">
+                    <label for="">View Users</label>
+                    <input type="checkbox" name="deleteUsers" id="">
+                    <label for="">Delete Users</label>
+                    <input type="checkbox" name="updateUsers" id="">
+                    <label for="">Update Users</label>
+                    <input type="checkbox" name="AddUsers" id="">
+                    <label for="">Add Users</label>
+                    <input type="checkbox" name="manageStock" id="">
+                    <label for="">Manage Stock</label>
+                    <input type="checkbox" name="editReports" id="">
+                    <label for="">Edit Reports</label>
+                    <input type="checkbox" name="manageSuppliers" id="">
+                    <label for="">Manage Suppliers</label>
+                    <input type="checkbox" name="manageCustomers" id="">
+                    <label for="">Manage Customers</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for SuperAdmin -->
+                <h3>SuperAdmin</h3>
+                <p>
+                    <input type="checkbox" name="viewUsers" id="">
+                    <label for="">View Users</label>
+                    <input type="checkbox" name="deleteUsers" id="">
+                    <label for="">Delete Users</label>
+                    <input type="checkbox" name="updateUsers" id="">
+                    <label for="">Update Users</label>
+                    <input type="checkbox" name="AddUsers" id="">
+                    <label for="">Add Users</label>
+                    <input type="checkbox" name="manageStock" id="">
+                    <label for="">Manage Stock</label>
+                    <input type="checkbox" name="editReports" id="">
+                    <label for="">Edit Reports</label>
+                    <input type="checkbox" name="manageSales" id="">
+                    <label for="">Manage Sales</label>
+                    <input type="checkbox" name="viewReports" id="">
+                    <label for="">View Reports</label>
+                    <input type="checkbox" name="manageSuppliers" id="">
+                    <label for="">Manage Suppliers</label>
+                    <input type="checkbox" name="manageCustomers" id="">
+                    <label for="">Manage Customers</label>
+                    <input type="checkbox" name="configuration" id="">
+                    <label for="">Configuration</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for Waiters -->
+                <h3>Waiters</h3>
+                <p>
+                    <input type="checkbox" name="viewSales" id="">
+                    <label for="">View Sales</label>
+                    <input type="checkbox" name="PrintReceipt" id="">
+                    <label for="">Print Receipt</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for Store Keeper -->
+                <h3>Store Keeper</h3>
+                <p>
+                    <input type="checkbox" name="manageStock" id="">
+                    <label for="">Manage Stock</label>
+                    <input type="checkbox" name="viewStock" id="">
+                    <label for="">View Stock</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for Chefs -->
+                <h3>Chefs</h3>
+                <p>
+                    <input type="checkbox" name="viewStock" id="">
+                    <label for="">View Stock</label>
+                    <input type="checkbox" name="viewSales" id="">
+                    <label for="">View Sales</label>
+                </p>
+                <hr>
+            
+                <!-- Permissions for Washers -->
+                <h3>Washers</h3>
+                <p>
+                    <input type="checkbox" name="viewStock" id="">
+                    <label for="">View Stock</label>
+                    <input type="checkbox" name="manageSuppliers" id="">
+                    <label for="">Manage Suppliers</label>
+                </p>
+                <hr>
+            
+                <!-- General Action Buttons -->
+                <p>
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Save Changes" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Check All" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Uncheck All" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Print" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Download" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Print Receipt" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Configuration" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Delete Changes" id="">
+                    <input type="button" style="padding: 10px;margin: 20px;" value="Update Roles" id="">
+                </p>
+            </form>
+              </div>
+        </section>
+        <!-- <script src="scripts.js"></script> -->
+    </body>
+    </html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVPOS - User Roles and Permissions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+        }
+        nav {
+            background-color: #4CAF50;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+        nav ul li {
+            width: 100%;
+            margin: 20px 0;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: #45a049;
+        }
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            color: #4CAF50;
+        }
+        header button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        header button:hover {
+            background-color: #45a049;
+        }
+        section {
+            margin-top: 20px;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .card table, th, td {
+            border: 1px solid #ddd;
+        }
+        .card th, .card td {
+            padding: 10px;
+            text-align: left;
+        }
+        .card th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .actions button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .actions button.add {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .actions button.edit {
+            background-color: #FFC107;
+            color: black;
+        }
+        .actions button.delete {
+            background-color: #f44336;
+            color: white;
+        }
+        .actions button:hover {
+            opacity: 0.8;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+        }
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+        .modal-content .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .modal-content .form-group input, .modal-content .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-content .actions {
+            text-align: right;
+        }
+        .modal-content .actions button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .modal-content .actions button.save {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .modal-content .actions button.cancel {
+            background-color: #f44336;
+            color: white;
+        }
+        .modal-content .actions button.save:hover {
+            background-color: #45a049;
+        }
+        .modal-content .actions button.cancel:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#Purchases">Purchases</a></li>
+            <li><a href="#sales">Sales</a></li>
+            <li><a href="#customers">Customers</a></li>
+            <li><a href="#reports">Reports</a></li>
+            <li><a href="#users">Users</a></li>
+            <li><a href="#settings">Settings</a></li>
+            <li><a href="#suppliers">Suppliers</a></li>
+            <li><a href="#inventory">Inventory</a></li>
+            <li><a href="#roles">Roles & Permissions</a></li>
+        </ul>
+    </nav>
+    <main>
+        <header>
+            <h1>DEVPOS - User Roles and Permissions</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
+        <section>
+            <!-- Roles Overview Card -->
+            <div class="card">
+                <h3>Roles</h3>
+                <div class="actions">
+                    <button class="add" onclick="openRoleModal()">Add Role</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role ID</th>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Permissions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Example Role Row -->
+                        <tr>
+                            <td>1</td>
+                            <td>Admin</td>
+                            <td>Full access to all features</td>
+                            <td>All</td>
+                            <td>
+                                <button class="edit" onclick="openRoleModal(1)">Edit</button>
+                                <button class="delete" onclick="deleteRole(1)">Delete</button>
+                            </td>
+                        </tr>
+                        <!-- Additional rows would be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Role Modal -->
+        <div id="roleModal" class="modal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Add Role</h2>
+                <div class="form-group">
+                    <label for="roleId">Role ID</label>
+                    <input type="text" id="roleId" placeholder="Enter role ID">
+                </div>
+                <div class="form-group">
+                    <label for="roleName">Role Name</label>
+                    <input type="text" id="roleName" placeholder="Enter role name">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" placeholder="Enter role description">
+                </div>
+                <div class="form-group">
+                    <label for="permissions">Permissions</label>
+                    <select id="permissions" multiple>
+                        <option value="view_sales">View Sales</option>
+                        <option value="edit_sales">Edit Sales</option>
+                        <option value="manage_inventory">Manage Inventory</option>
+                        <option value="view_reports">View Reports</option>
+                        <option value="manage_users">Manage Users</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button class="save" onclick="saveRole()">Save</button>
+                    <button class="cancel" onclick="closeRoleModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function openRoleModal(roleId) {
+            if (roleId) {
+                document.getElementById('modalTitle').innerText = 'Edit Role';
+                // Fetch and populate role data here
+            } else {
+                document.getElementById('modalTitle').innerText = 'Add Role';
+                // Clear modal fields for new entry
+                document.getElementById('roleId').value = '';
+                document.getElementById('roleName').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('permissions').selectedIndex = -1;
+            }
+            document.getElementById('roleModal').style.display = 'flex';
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').style.display = 'none';
+        }
+
+        function saveRole() {
+            // Implement save logic
+            closeRoleModal();
+        }
+
+        function deleteRole(roleId) {
+            // Implement delete logic
+            alert('Role ' + roleId + ' deleted.');
+        }
+
+        function logout() {
+            // Implement logout logic
+        }
+    </script>
+</body>
+</html>

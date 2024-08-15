@@ -1,15 +1,281 @@
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sales - Inventory Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        /* Your existing styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            background-color: #28a745;
+        }
+
+        .navbar a {
+            color: white !important;
+        }
+
+        .navbar-brand {
+            color: white !important;
+        }
+
+        .topbar {
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .wrapper {
+            margin: 20px auto;
+            max-width: 1200px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .sales-table th, .sales-table td {
+            text-align: center;
+        }
+
+        .sales-table input, .sales-table select {
+            width: 100%;
+        }
+
+        .panel {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        footer.footer {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 0;
+        }
+
+        footer.footer a {
+            color: white !important;
+            text-decoration: none;
+        }
+
+        footer.footer a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-success, .btn-danger {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        #suggestions {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        #suggestions .list-group-item {
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Online Library</h1>
-      <div class="container">
-         <div class="title"><%=items[0].name %> </div>
-         <div class="address"><%=items[0].address %> </div>
-           <small>&COPY; 2024 all rights reserved</small>
-      </div>
+    <div class="topbar">
+        <div class="container">
+            <div class="d-flex justify-content-between">
+                <div id="liveclock">25.07.2024 19:55:35</div>
+                <div><strong>Devpos</strong></div>
+                <div>
+                    <a href="#" id="change_password" class="mr-3">username</a>
+                    <a href="#" id="logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">Inventory</a>
+        <!-- Navbar content omitted for brevity -->
+    </nav>
+
+    <div class="container wrapper">
+        <h2>Sales</h2>
+        <form action="/search-products" method="get" class="form-inline mb-3">
+            <div class="form-group mr-3 position-relative">
+                <label for="itemSearch" class="sr-only">Search Item</label>
+                <input type="text" class="form-control" id="itemSearch" placeholder="Type item name or scan barcode" autocomplete="off">
+                <div id="suggestions" class="list-group"></div>
+            </div>
+            <button type="button" class="btn btn-primary">Add Item</button>
+        </form>
+
+        <table class="table table-bordered table-striped sales-table">
+            <thead>
+                <tr>
+                    <th>Delete</th>
+                    <th>Item #</th>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Discount</th>
+                    <th>Total</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody id="cartContents">
+                <!-- Sales items will be populated here -->
+            </tbody>
+        </table>
+        <!-- Panel for additional sales options omitted for brevity -->
+                <form>
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <textarea class="form-control" id="comment" rows="3"></textarea>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="printAfterSale">
+                        <label class="form-check-label" for="printAfterSale">Print receipt after sale</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentType">Payment Type</label>
+                        <select class="form-control" id="paymentType">
+                            <option>Cash</option>
+                            <option>Check</option>
+                            <option>Debit Card</option>
+                            <option>Credit Card</option>
+                            <option>Due</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentValue">Payment Value</label>
+                        <input type="text" class="form-control" id="paymentValue">
+                    </div>
+                    <button type="submit" class="btn btn-success">Complete Sale</button>
+                    <button type="button" class="btn btn-danger">Cancel</button>
+                </form>
+            </div>
+        </div>
+    
+
+    </div>
+    </div>
+
+    <footer class="footer mt-auto py-3">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2020 - 2024 · <a href="#" target="_blank">DEVPOS</a> V 1.0.0</span>
+        </div>
+    </footer>
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Event listener for input in the item search field
+        $('#itemSearch').on('input', function () {
+            const searchTerm = $(this).val().trim(); // Get the trimmed value of the search term
+
+            if (searchTerm.length > 0) {
+                $.ajax({
+                    url: '/search-products', // Backend route for searching products
+                    method: 'GET',
+                    data: { term: searchTerm }, // Sending the search term as a query parameter
+                    success: function (data) {
+
+                        $('#suggestions').empty(); // Clear previous suggestions
+
+                        // Loop through the data and append each product as a clickable suggestion
+                        data.forEach(product => {
+                            $('#suggestions').append(`
+                                <a href="#" class="list-group-item list-group-item-action" data-id="${product.p_id}" data-name="${product.p_name}" data-bp="${product.p_bp}" data-sp="${product.p_sp}" data-wp="${product.p_wp}">
+                                    ${product.p_name} - Price: ${product.p_sp}
+                                </a>
+                            `);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX Error:', status, error); // Log any AJAX errors to the console
+                    }
+                });
+            } else {
+                $('#suggestions').empty(); // Clear suggestions if the search term is empty
+            }
+        });
+
+        // Event listener for clicking a suggestion
+        $('#suggestions').on('click', 'a', function (e) {
+            e.preventDefault(); // Prevent default link behavior
+            const pid = $(this).data('id');
+            const name = $(this).data('name'); // Get product name from data attribute
+            const sp = $(this).data('sp'); // Get selling price from data attribute
+            const bp = $(this).data('bp'); // Get buying price from data attribute
+            const wp = $(this).data('wp'); // Get wholesale price from data attribute
+
+            // Append the selected product to the cart
+            $('#cartContents').append(`
+                <tr>
+                    <td><button class="btn btn-danger btn-sm">Delete</button></td>
+                      
+                    <td>${pid}</td>
+                    <td>${name}</td>
+                    <td id="one">${sp}</td>
+                    <td><input  id="qu" type="number" class="form-control" value="1" min="1"></td>
+                    <td>
+                        <select class="form-control" id ="disc">
+                            <option value="0">x0</option>
+                            <option value="10">x10</option>
+                            <option value="20">x20</option>
+                        </select>
+                    </td>
+                    
+                    <td id="total">ksh ${sp} </td>
+                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                </tr>
+            `);
+
+            $('#itemSearch').val(''); // Clear the search input field
+            $('#suggestions').empty(); // Clear the suggestions list
+        });
+    });
+</script>
+
+  
+    <script>
+        $(document).ready(function () {
+            function updateClock() {
+                $('#liveclock').text(new Date().toLocaleString());
+            }
+
+            setInterval(updateClock, 1000);
+        });
+
+   
+       
+    </script>
 </body>
+
 </html>

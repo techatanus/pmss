@@ -1,594 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-  <title> Saviour Movers</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
- 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
-  <!-- Template Main CSS File -->
-  <link href="assets/css/main.css" rel="stylesheet">
-
-  <!-- =======================================================
-  * Template Name: Impact
-  * Updated: Jan 30 2024 with Bootstrap v5.3.2
-  * Template URL: https://bootstrapmade.com/impact-bootstrap-business-website-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVPOS Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+        }
+        nav {
+            background-color: #4CAF50;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+        nav ul li {
+            width: 100%;
+            margin: 20px 0;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 10px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: #45a049;
+        }
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            color: #4CAF50;
+        }
+        header button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        header button:hover {
+            background-color: #45a049;
+        }
+        section {
+            margin-top: 20px;
+        }
+        .cards {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            margin: 10px;
+            text-align: center;
+        }
+        .card h2 {
+            color: #4CAF50;
+        }
+    </style>
 </head>
-
 <body>
-
-  <!-- ======= Header ======= -->
-  <section id="topbar" class="topbar d-flex align-items-center">
-    <div class="container d-flex justify-content-center justify-content-md-between">
-      <div class="contact-info d-flex align-items-center">
-        <i class="bi bi-envelope d-flex align-items-center"><a href="mailto:contact@example.com">info@saviourmovers.com</a></i>
-        <i class="bi bi-phone d-flex align-items-center ms-4"><span>+254 720209395</span></i>
-      </div>
-      <div class="social-links d-none d-md-flex align-items-center">
-        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
-      </div>
-    </div>
-  </section><!-- End Top Bar -->
-
-  <header id="header" class="header d-flex align-items-center">
-
-    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="assets/img/logo.png" alt=""> -->
-        <h1> Saviour <span>.</span></h1>
-      </a>
-      <nav id="navbar" class="navbar">
+    <nav>
         <ul>
-          <li><a href="#hero">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#services">Services</a></li>
-          <!-- <li><a href="/products">products</a></li> -->
-         
-          <!-- <li class="dropdown"><a href="#"><span>Drop Down</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a> -->
-            <!-- <ul>
-              <li><a href="#">Drop Down 1</a></li>
-              <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
-                <ul>
-                  <li><a href="#">Deep Drop Down 1</a></li>
-                  <li><a href="#">Deep Drop Down 2</a></li>
-                  <li><a href="#">Deep Drop Down 3</a></li>
-                  <li><a href="#">Deep Drop Down 4</a></li>
-                  <li><a href="#">Deep Drop Down 5</a></li>
-                </ul>
-              </li>
-              <li><a href="#">Drop Down 2</a></li>
-              <li><a href="#">Drop Down 3</a></li>
-              <li><a href="#">Drop Down 4</a></li>
-            </ul> -->
-          </li>
-          <li><a href="#contact">Contact</a></li>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="/t">Purchases</a></li>
+            <li><a href="/sales">Sales</a></li>
+            <li><a href="/customers">Customers</a></li>
+            <li><a href="/rep">Reports</a></li>
+
         </ul>
-      </nav><!-- .navbar -->
-
-      <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
-      <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
-
-    </div>
-  </header><!-- End Header -->
-  <!-- End Header -->
-
-  <!-- ======= Hero Section ======= -->
-  <section id="hero" class="hero">
-    <div class="container position-relative">
-      <div class="row gy-5" data-aos="fade-in">
-        <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
-          <h2>Welcome to <span>Saviour Movers</span></h2>
-          <p>Moving to another country can be a daunting experience. But we think it should be one of the most exciting moments.</p>
-          <div class="d-flex justify-content-center justify-content-lg-start">
-            <a href="#about" class="btn-get-started">Get Started</a>
-            <a href="#" class="btn-get-started">Request a Quote</a>
-          </div>
-        </div>
-        <div class="col-lg-6 order-1 order-lg-2">
-          <img src="assets/img/sv10.jpg" class="img-fluid" alt="" data-aos="zoom-out" data-aos-delay="100">
-        </div>
-      </div>
-    </div>
-  
-    <div class="icon-boxes position-relative">
-      <div class="container position-relative">
-        <div class="row gy-4 mt-5">
-  
-          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="icon-box">
-              <div class="icon"><i class="bi bi-check2"></i></div>
-              <h4 class="title"><a href="#" class="stretched-link">House Moving</a></h4>
-              <p>Relocate your household belongings safely and efficiently with our professional moving services.</p>
-            </div>
-          </div><!--End Icon Box -->
-  
-          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="icon-box">
-              <div class="icon"><i class="bi bi-building"></i></div>
-              <h4 class="title"><a href="#" class="stretched-link">Office Moving</a></h4>
-              <p>Facilitate a seamless transition for your office setup with our specialized office relocation solutions.</p>
-            </div>
-          </div><!--End Icon Box -->
-  
-          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="icon-box">
-              <div class="icon"><i class="bi bi-box-seam"></i></div>
-              <h4 class="title"><a href="#" class="stretched-link">Warehouse Moving</a></h4>
-              <p>Efficiently manage your warehouse relocation process with our tailored solutions for businesses.</p>
-            </div>
-          </div><!--End Icon Box -->
-  
-          <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="500">
-            <div class="icon-box">
-              <div class="icon"><i class="bi bi-globe"></i></div>
-              <h4 class="title"><a href="#" class="stretched-link">International Relocation</a></h4>
-              <p>Experience a smooth transition to your new international destination with our reliable relocation services.</p>
-            </div>
-          </div><!--End Icon Box -->
-  
-        </div>
-      </div>
-    </div>
-  
-  </section>
-  <!-- End Hero -->
- 
-
-  <main id="main">
-
-<!-- ======= About Us Section ======= -->
-<section id="about" class="about">
-  <div class="container" data-aos="fade-up">
-
-    <div class="section-header">
-      <h2>About Saviour Movers</h2>
-      <p>Providing Reliable and Professional Moving Solutions for a Seamless Relocation Experience</p>
-    </div>
-
-    <div class="row gy-4">
-      <div class="col-lg-6">
-        <h3>Your Trusted Moving Partner</h3>
-        <img src="assets/img/sv4.jpg" class="img-fluid rounded-4 mb-4" alt="Saviour Movers">
-        <p>Saviour Movers is dedicated to simplifying the moving process for individuals and businesses alike. With our expertise in house, office, warehouse, and international relocation, we ensure a hassle-free transition to your new destination.</p>
-        <p>Our team of professionals is committed to delivering exceptional service, from carefully packing your belongings to safely transporting them to your new location.</p>
-      </div>
-      <div class="col-lg-6">
-        <div class="content ps-0 ps-lg-5">
-          <p class="fst-italic">
-          
-          </p>
-          <ul>
-            <li><i class="bi bi-check-circle-fill"></i> Comprehensive moving services tailored to your needs.</li>
-            <li><i class="bi bi-check-circle-fill"></i> Expertise in move-in and move-out cleaning and pest control.</li>
-            <li><i class="bi bi-check-circle-fill"></i> Professional packing services to ensure the safety of your belongings.</li>
-          </ul>
-          <p>
-            At Saviour Movers, we understand the importance of a smooth transition, and we are dedicated to providing you with a stress-free moving experience.
-          </p>
-
-          <div class="position-relative mt-4">
-            <img src="assets/img/sv10.jpg" class="img-fluid rounded-4" alt="Saviour Movers">
-            <!-- If you have any promotional images or videos, you can add them here -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section><!-- End About Us Section -->
-
-   <!-- ======= Clients Section ======= -->
-<section id="clients" class="clients">
-  <div class="container" data-aos="zoom-out">
-
-    <div class="section-header">
-      <h2>Our Work</h2>
-      <p>Trusted Collaborations for Seamless Relocations</p>
-    </div>
-
-    <div class="clients-slider swiper">
-      <div class="swiper-wrapper align-items-center">
-        <div class="swiper-slide"><img src="assets/img/sv3.jpg" class="img-fluid" alt="Saviour Movers Partner 1"></div>
-        <div class="swiper-slide"><img src="assets/img/sv10.jpg" class="img-fluid" alt="Saviour Movers Partner 2"></div>
-        <div class="swiper-slide"><img src="assets/img/sv7.jpg" class="img-fluid" alt="Saviour Movers Partner 3"></div>
-        <div class="swiper-slide"><img src="assets/img/sv4.jpg" class="img-fluid" alt="Saviour Movers Partner 4"></div>
-        <div class="swiper-slide"><img src="assets/img/sv5.jpg" class="img-fluid" alt="Saviour Movers Partner 5"></div>
-        <!-- Add more partner images as needed -->
-      </div>
-    </div>
-
-  </div>
-</section><!-- End Clients Section -->
-
-
-<!-- ======= Stats Counter Section ======= -->
-<section id="stats-counter" class="stats-counter">
-  <div class="container" data-aos="fade-up">
-    <div class="row gy-4 align-items-center">
-      <div class="col-lg-6">
-        <img src="assets/img/sv3.jpg" alt="" class="img-fluid">
-      </div>
-      <div class="col-lg-6">
-        <div class="stats-item d-flex align-items-center">
-          <span data-purecounter-start="0" data-purecounter-end="1000" data-purecounter-duration="1" class="purecounter"></span>
-          <p><strong>Satisfied Customers</strong> experiencing seamless relocations</p>
-        </div><!-- End Stats Item -->
-
-        <div class="stats-item d-flex align-items-center">
-          <span data-purecounter-start="0" data-purecounter-end="500" data-purecounter-duration="1" class="purecounter"></span>
-          <p><strong>Successful Moves</strong> completed with precision and care</p>
-        </div><!-- End Stats Item -->
-
-        <div class="stats-item d-flex align-items-center">
-          <span data-purecounter-start="0" data-purecounter-end="24" data-purecounter-duration="1" class="purecounter"></span>
-          <p><strong>Support Hours</strong> available for your assistance</p>
-        </div><!-- End Stats Item -->
-      </div>
-    </div>
-  </div>
-</section>
-<!-- ======= End Stats Counter Section ======= -->
-
-<!-- ======= Call To Action Section ======= -->
-<section id="call-to-action" class="call-to-action">
-  <div class="container text-center" data-aos="zoom-out">
-    <h3>Experience a Stress-Free Relocation with Saviour Movers</h3>
-    <p>Let us handle your next move with professionalism and care. Contact us today for a smooth and seamless relocation experience.</p>
-    <a class="cta-btn" href="#">Get a Quote</a>
-  </div>
-</section>
-<!-- ======= End Call To Action Section ======= -->
-
-
-<!-- ======= Our Services Section ======= -->
-<section id="services" class="services sections-bg">
-  <div class="container" data-aos="fade-up">
-
-    <div class="section-header">
-      <h2>Discover Our Services</h2>
-      <p>Experience a seamless relocation process with Saviour Movers' comprehensive services.</p>
-    </div>
-
-    <div class="row gy-4" data-aos="fade-up" data-aos-delay="100">
-
-      <div class="col-lg-4 col-md-6">
-        <div class="service-item position-relative">
-          <div class="icon">
-            <i class="bi bi-house"></i>
-          </div>
-          <h3>House Relocation</h3>
-          <p>Relocate your household belongings with precision and care.</p>
-          <a href="#" class="readmore stretched-link">Read more <i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div><!-- End Service Item -->
-
-      <div class="col-lg-4 col-md-6">
-        <div class="service-item position-relative">
-          <div class="icon">
-            <i class="bi bi-house"></i>
-          </div>
-          <h3>  Cleaning and Pest Control</h3>
-          <p>We offer prrofessional move in or move out cleaning and pest control services to our clients at affordable cost.</p>
-          <a href="#" class="readmore stretched-link">Read more <i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div><!-- End Service Item -->
-      <div class="col-lg-4 col-md-6">
-        <div class="service-item position-relative">
-          <div class="icon">
-            <i class="bi bi-house"></i>
-          </div>
-          <h3>Packing Services</h3>
-          <p>We offer full packing and Crating solutions, so whatever your requirements are we will be able to help.</p>
-          <a href="#" class="readmore stretched-link">Read more <i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div><!-- End Service Item -->
-     
-     
-      <div class="col-lg-4 col-md-6">
-        <div class="service-item position-relative">
-          <div class="icon">
-            <i class="bi bi-house"></i>
-          </div>
-          <h3> International Relocation</h3>
-          <p> Moving to another country can be a daunting experience. But we think it should be one of the most exciting moments.</p>
-          <a href="#" class="readmore stretched-link">Read more <i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div><!-- End Service Item -->
-      <div class="col-lg-4 col-md-6">
-        <div class="service-item position-relative">
-          <div class="icon">
-            <i class="bi bi-briefcase"></i>
-          </div>
-          <h3>Office Relocation</h3>
-          <p>Efficiently move your office setup with our professional relocation solutions.</p>
-          <a href="#" class="readmore stretched-link">Read more <i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div><!-- End Service Item -->
-      
-      <div class="col-lg-4 col-md-6">
-        <div class="service-item position-relative">
-          <div class="icon">
-            <i class="bi bi-archive"></i>
-          </div>
-          <h3>Warehouse Relocation</h3>
-          <p>Streamline your warehouse relocation process with our tailored solutions.</p>
-          <a href="#" class="readmore stretched-link">Read more <i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div><!-- End Service Item -->
-
-      <!-- Add more customized services for Saviour Movers -->
-
-    </div>
-
-  </div>
-</section><!-- End Our Services Section -->
-
-<!-- ======= Testimonials Section ======= -->
-<section id="testimonials" class="testimonials">
-  <div class="container" data-aos="fade-up">
-
-    <div class="section-header">
-      <h2>Happy Clients, Happy Stories</h2>
-      <p>Discover what our clients have to say about their experiences with Saviour Movers.</p>
-    </div>
-
-    <div class="slides-3 swiper" data-aos="fade-up" data-aos-delay="100">
-      <div class="swiper-wrapper">
-
-        <div class="swiper-slide">
-          <div class="testimonial-wrap">
-            <div class="testimonial-item">
-              <div class="d-flex align-items-center">
-                <img src="assets/img/testimonials/client-1.jpg" class="testimonial-img flex-shrink-0" alt="">
-                <div>
-                  <!-- <h3>Jane </h3> -->
-                  <h4>Happy Customer</h4>
-                  <div class="stars">
-                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                  </div>
+    </nav>
+    <main>
+        <header>
+            <h1>DEVPOS         <small style="margin-left: 150px;">Welcome <%= username %></small></h1>
+            <button><a href="/logout">Logout</a></button>
+        </header>
+        <section id="dashboard">
+            <h2>Dashboard Overview</h2>
+            <div class="cards">
+                <div class="card">
+                    <h2>Total Sales</h2>
+                    <p>$10,000</p>
                 </div>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                Saviour Movers made my relocation stress-free and efficient. Their team was professional and handled my belongings with care. Highly recommended!
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
+                <div class="card">
+                    <h2>Purchases Sold</h2>
+                    <p>500</p>
+                </div>
+                <div class="card">
+                    <h2>New Customers</h2>
+                    <p>50</p>
+                </div>
             </div>
-          </div>
-        </div><!-- End testimonial item -->
+        </section>
+    
+    </main>
 
-        <!-- Add more testimonials as needed -->
-
-      </div>
-      <div class="swiper-pagination"></div>
-    </div>
-
-  </div>
-</section><!-- End Testimonials Section -->
-
-   
-<!-- ======= Frequently Asked Questions Section ======= -->
-<section id="faq" class="faq">
-  <div class="container" data-aos="fade-up">
-
-    <div class="row gy-4">
-
-      <div class="col-lg-4">
-        <div class="content px-xl-5">
-          <h3>Frequently Asked <strong>Questions</strong></h3>
-          <p>
-            Have questions about our moving services? Find answers to some common queries below.
-          </p>
-        </div>
-      </div>
-
-      <div class="col-lg-8">
-
-        <div class="accordion accordion-flush" id="faqlist" data-aos="fade-up" data-aos-delay="100">
-
-          <div class="accordion-item">
-            <h3 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-1">
-                <span class="num">1.</span>
-                How can I request a quote for my move?
-              </button>
-            </h3>
-            <div id="faq-content-1" class="accordion-collapse collapse" data-bs-parent="#faqlist">
-              <div class="accordion-body">
-                Requesting a quote is simple! Visit our <a href="#">contact page</a> and fill out the form with your details. Our team will get back to you with a customized quote.
-              </div>
-            </div>
-          </div><!-- # Faq item-->
-
-          <div class="accordion-item">
-            <h3 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-content-2">
-                <span class="num">2.</span>
-                Do you offer packing services?
-              </button>
-            </h3>
-            <div id="faq-content-2" class="accordion-collapse collapse" data-bs-parent="#faqlist">
-              <div class="accordion-body">
-                Yes, we offer professional packing services to ensure the safety of your belongings during transit. Learn more on our <a href="#">services page</a>.
-              </div>
-            </div>
-          </div><!-- # Faq item-->
-
-          <!-- Add more FAQs related to Saviour Movers -->
-
-        </div>
-
-      </div>
-    </div>
-
-  </div>
-</section><!-- End Frequently Asked Questions Section -->
-
-
-<!-- ======= Contact Section ======= -->
-<section id="contact" class="contact">
-  <div class="container" data-aos="fade-up">
-
-    <div class="section-header">
-      <h2>Contact Us</h2>
-      <p>Have more questions or need assistance with your move? Reach out to us!</p>
-    </div>
-
-    <div class="row gx-lg-0 gy-4">
-
-      <div class="col-lg-4">
-
-        <div class="info-container d-flex flex-column align-items-center justify-content-center">
-          <div class="info-item d-flex">
-            <i class="bi bi-geo-alt flex-shrink-0"></i>
-            <div>
-              <h4>Location:</h4>
-              <p>Kenya, Nairobi</p>
-            </div>
-          </div><!-- End Info Item -->
-
-          <!-- Add more contact info for Saviour Movers -->
-
-        </div>
-
-      </div>
-
-      <div class="col-lg-8">
-        <form action="forms/contact.php" method="post" role="form" class="php-email-form">
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
-            </div>
-            <div class="col-md-6 form-group mt-3 mt-md-0">
-              <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
-            </div>
-          </div>
-          <div class="form-group mt-3">
-            <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
-          </div>
-          <div class="form-group mt-3">
-            <textarea class="form-control" name="message" rows="7" placeholder="Your Message" required></textarea>
-          </div>
-          <div class="my-3">
-            <div class="loading">Loading</div>
-            <div class="error-message"></div>
-            <div class="sent-message">Your message has been sent. Thank you!</div>
-          </div>
-          <div class="text-center"><button type="submit">Send Message</button></div>
-        </form>
-      </div><!-- End Contact Form -->
-
-    </div>
-
-  </div>
-</section><!-- End Contact Section -->
-
-  </main><!-- End #main -->
-  <!-- ======= Footer ======= -->
-  <footer id="footer" class="footer">
-
-    <div class="container">
-      <div class="row gy-4">
-        <div class="col-lg-5 col-md-12 footer-info">
-          <a href="index.html" class="logo d-flex align-items-center">
-            <span>Saviour Movers</span>
-          </a>
-          <p>Saviour Movers is dedicated to providing seamless relocation experiences. Whether it's house, office, warehouse, or international relocation, we've got you covered. Let us handle your move while you focus on the excitement of starting anew.</p>
-          
-          <div class="social-links d-flex mt-4">
-            <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-            <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-            <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-          </div>
-        </div>
-
-        <div class="col-lg-2 col-6 footer-links">
-          <h4>Useful Links</h4>
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Terms of service</a></li>
-            <li><a href="#">Privacy policy</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-6 footer-links">
-          <h4>Our Services</h4>
-          <ul>
-            <li><a href="#">House Relocation</a></li>
-            <li><a href="#">Office Relocation</a></li>
-            <li><a href="#">Warehouse Relocation</a></li>
-            <li><a href="#">International Relocation</a></li>
-            <li><a href="#">Cleaning and Pest Control</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
-          <h4>Contact Us</h4>
-          <p>
-            Nairobi, Kenya<br>
-            <strong>Phone:</strong>0720209395<br>
-            <strong>Email:</strong> info@saviourmovers.com<br>
-          </p>
-
-        </div>
-
-      </div>
-    </div>
-
-    <div class="container mt-4">
-      <div class="copyright">
-        &copy; Copyright <strong><span>Saviour Movers</span></strong>. All Rights Reserved
-      </div>
-      <div class="credits">
-        Designed by <a href="https://devsolutions.vercel.app/">DevTech</a>
-      </div>
-    </div>
-
-  </footer><!-- End Footer -->
-
-  <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <div id="preloader"></div>
-
-  <!-- Vendor JS Files -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-
-  <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
-
+    <script>
+        function logout() {
+            alert('Logging out...');
+            // Implement logout functionality here
+            window.location.href = 'login.html';
+        }
+    </script>
 </body>
-
 </html>
