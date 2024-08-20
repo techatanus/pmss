@@ -9,14 +9,12 @@ document.getElementById("myForm").addEventListener("submit", function(event){
     // validate name
     if(!/^[a-zA-Z\s]+$/.test(username)){
         alert("Invalid username. Please use only letters and spaces")
+        return;
     };
-    return;
-
-
     // Validate Password (Strong password)
-    let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+    let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{4,}$/;
     if (!passwordRegex.test(password)) {
-        alert("Password must be at least 8 characters long and include a mix of uppercase, lowercase, numbers, and special characters.");
+        alert("Password must be at least 4 characters long and include a mix of uppercase, lowercase, numbers, and special characters.");
         return;
     }
 

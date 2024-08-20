@@ -243,7 +243,7 @@
         <div id="supplierModal" class="modal">
             <div class="modal-content">
                 <h2 id="modalTitle">Add Supplier</h2>
-                  <form action="/addsup" method="post">
+                  <form action="/addsup" method="post" id="myForm">
                     <!-- <div class="form-group">
                         <label for="supplierId">Supplier ID</label>
                         <input type="text" id="supplierId" placeholder="Enter supplier ID">
@@ -274,7 +274,7 @@
             </div>
         </div>
     </main>
-
+<script src="/vendors/Validatesupply.js"></script>
     <script>
         function openSupplierModal(supplierId) {
             // Fill in the modal fields with supplier data if editing

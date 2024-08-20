@@ -3,6 +3,7 @@ const route = express.Router();
 const db = require('../util/db');
 const session = require('express-session');
 const{processRequest, addProduct, addCategory, addsuppliers, userAuthentication} = require('../controllers/utils');
+const{ CompanyDetail, generalSettings, taxSettings } = require('../controllers/settings')
 
 
 
@@ -60,9 +61,10 @@ route.get('/sup',(req,res)=>{
  });
 //  inventory management
 route.get('/inventory',(req,res)=>{
-  res.render('./invent');
-  
+  db.query('SELECT * FROM products',(err,result)=>{
+    res.render('./invent', {addedProduct : result});
  });
+})
 //  roles and permision
 route.get('/roles',(req,res)=>{
   res.render('./roles');
@@ -155,8 +157,13 @@ route.post('/addsup', addsuppliers)
 // login
 route.post('/sign',userAuthentication);
 
-// auto filter products
-// route.get('/search-products',Sales_autosearch);
+//companydetails
+route.post('/cdetails',CompanyDetail);
+// genSettings
+route.post('/saveGeneralSettings',generalSettings);
+//TaxSettings
+route.post('/saveTaxSettings',taxSettings)
+
 
 // Export the route object
 module.exports = route;

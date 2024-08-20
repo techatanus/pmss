@@ -132,10 +132,10 @@
             <button onclick="logout()">Logout</button>
         </header>
         <section>
-         <p>From  <input type="date" name="startD">  -to-  <input type="date" name="endD"></p>
+         <p>From  <input type="date" name="startD" style="margin: 30px;">  to  <input type="date" name="endD" style="margin: 30px;"></p>
             <div class="report-type">
                 <button onclick="showReport('dailySales')">Daily Sales</button>
-                <button onclick="showReport('paymentMode')">Mode of Payment</button>
+                <button onclick="showReport('paymentMode')" id="mp">Mode of Payment</button>
                 <button onclick="showReport('department')">Department</button>
                 <button onclick="showReport('stockRemaining')">Remaining Stock</button>
                 <button onclick="showReport('stockSold')">Sold Stock</button>
@@ -233,17 +233,92 @@
     </main>
 
     <script>
-        function showReport(reportId) {
-            const reports = document.querySelectorAll('.report-content');
-            reports.forEach(report => {
-                report.classList.remove('active');
-            });
-            document.getElementById(reportId).classList.add('active');
-        }
+    function showReport(reportId) {
+    const reports = document.querySelectorAll('.report-content');
+    reports.forEach(report => {
+        report.classList.remove('active');
+    });
+    document.getElementById(reportId).classList.add('active');
 
-        function logout() {
+    const startDate = document.querySelector('input[name="startD"]').value;
+    const endDate = document.querySelector('input[name="endD"]').value;
+
+    fetch(`/report?startDate=${startDate}&endDate=${endDate}&type=${reportId}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector(`#${reportId} tbody`);
+            tbody.innerHTML = '';
+
+            if (reportId === 'dailySales') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.sale_id}</td>
+                            <td>${row.product}</td>
+                            <td>${row.quantity}</td>
+                            <td>${row.price}</td>
+                            <td>${row.total}</td>
+                            <td>${row.date}</td>
+                        </tr>`;
+                });
+            } else if (reportId === 'paymentMode') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.payment_mode}</td>
+                            <td>${row.transaction_id}</td>
+                            <td>${row.amount}</td>
+                            <td>${row.date}</td>
+                        </tr>`;
+                });
+            } else if (reportId === 'department') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.department}</td>
+                            <td>${row.product}</td>
+                            <td>${row.quantity}</td>
+                            <td>${row.price}</td>
+                            <td>${row.total}</td>
+                            <td>${row.date}</td>
+                        </tr>`;
+                });
+            } else if (reportId === 'stockRemaining') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.product}</td>
+                            <td>${row.category}</td>
+                            <td>${row.quantity_remaining}</td>
+                            <td>${row.last_restocked}</td>
+                        </tr>`;
+                });
+            } else if (reportId === 'stockSold') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.product}</td>
+                            <td>${row.category}</td>
+                            <td>${row.quantity_sold}</td>
+                            <td>${row.date_sold}</td>
+                        </tr>`;
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching report data:', error));
+}
+
+       // function showReport(reportId) {
+         //   const reports = document.querySelectorAll('.report-content');
+         //   reports.forEach(report => {
+          //      report.classList.remove('active');
+          //  });
+          //  document.getElementById(reportId).classList.add('active');
+      //  }
+
+      //  function logout() {
             // Add your logout functionality here
-        }
+      //  }
     </script>
 </body>
 </html>

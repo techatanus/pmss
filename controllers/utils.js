@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 
  const processRequest = async(req,res,next)=>{
     const {name,email,role} = req.body
-    const Password = 'ke254';
+    const Password = 'Ke@254';
     const hashedPass = bcrypt.hashSync(Password,10);
 
     // -----check if user exist before creating new user-------

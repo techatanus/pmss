@@ -144,38 +144,38 @@ h1 {
 
         <div class="content">
             <h1>POS Configuration</h1>
-            <form id="configForm">
+            <form action="/cdetails" method="post" id="configForm" >
                 <div class="form-group">
                     <label for="companyName">Company Name <span class="required">*</span></label>
-                    <input type="text" id="companyName" value="James Company" readonly>
+                    <input type="text" name="name" id="companyName"  >
                 </div>
                 <div class="form-group">
                     <label for="companyLogo">Company Logo</label>
-                    <input type="file" id="companyLogo">
+                    <input type="file" name="logo" id="companyLogo">
                 </div>
                 <div class="form-group">
                     <label for="companyAddress">Company Address <span class="required">*</span></label>
-                    <input type="text" id="companyAddress" value="AKWA, SALLE DE FETE">
+                    <input type="text" name="address" id="companyAddress" >
                 </div>
                 <div class="form-group">
                     <label for="website">Website</label>
-                    <input type="url" id="website">
+                    <input type="url" name="website" id="website">
                 </div>
                 <div class="form-group">
                     <label for="email">Email <span class="required">*</span></label>
-                    <input type="email" id="email" value="lefouquetdla@yahoo.fr">
+                    <input type="email" name="email" id="email" >
                 </div>
                 <div class="form-group">
                     <label for="phone">Company Phone</label>
-                    <input type="tel" id="phone" value="(237) 69036282">
+                    <input type="tel" name="phone" id="phone" >
                 </div>
                 <div class="form-group">
                     <label for="fax">Fax</label>
-                    <input type="text" id="fax">
+                    <input type="text" name="fax" id="fax">
                 </div>
                 <div class="form-group">
                     <label for="returnPolicy">Return Policy</label>
-                    <textarea id="returnPolicy"></textarea>
+                    <textarea id="returnPolicy" name="policy"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit">Save</button>

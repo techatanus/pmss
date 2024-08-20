@@ -261,7 +261,7 @@
                             <td><a href="/change?id=<%=product.p_id %>">update</a></td>
                             <td><a href="/del?id=<%=product.p_id %>">delete</a></td>
                            </tr>
-                    <%  }) %>
+                    <%}) %>
                 </tbody>
             </table>
         </section>
@@ -270,14 +270,14 @@
     <div class="modal" id="productModal">
         <div class="modal-content">
             <h2 id="modalTitle">Add Product</h2>
-                      <form action="/purchase" method="post">
+                      <form action="/purchase" method="post" id="myForm">
                         <div class="form-group">
                             <label for="productName">Product Name</label>
-                            <input type="text" name="name" id="productName">
+                            <input type="text"  name="name" id="productName">
                         </div>
                         <div class="form-group">
                             <label for="productName">Category</label>
-                            <select name="category" id="productName">
+                            <select  name="category" id="productName">
                                  <option value="beer">Beer</option>
                                  <option value="softDrink">Soft drink</option>
                                  <option value="food">Food</option>
@@ -286,7 +286,7 @@
                         </div>
                         <div class="form-group">
                             <label for="buyingPrice">Buying Price</label>
-                            <input type="number" name="bp" id="buyingPrice">
+                            <input  type="number" name="bp" id="buyingPrice">
                         </div>
                         <div class="form-group">
                             <label for="sellingPrice">Selling Price</label>
@@ -294,11 +294,11 @@
                         </div>
                         <div class="form-group">
                             <label for="wholesalePrice">Wholesale Price</label>
-                            <input type="number" name="wp" id="wholesalePrice">
+                            <input type="number"   name="wp" id="wholesalePrice">
                         </div>
                         <div class="form-group">
                             <label for="productStock">Quantity</label>
-                            <input type="number" name="stock" id="productStock">
+                            <input type="number"   name="stock" id="productStock">
                         </div>
                         <div class="actions">
                             <button class="save" >Save</button>
@@ -313,10 +313,10 @@
     <div class="modal" id="fileModal">
         <div class="modal-content">
             <h2>Bulk Product Upload</h2>
-            <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
+            <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload" id="myForm">
                 <div class="form-group">
                     <label for="bulkFile">Upload File</label>
-                    <input type="file" id="bulkFile" name="bulkFile" accept=".csv">
+                    <input type="file" id="csv" name="bulkFile" accept=".csv">
                 </div>
                 <div class="actions">
                     <button type="submit" class="save">Upload</button>
@@ -325,6 +325,7 @@
             </form>
         </div>
     </div>
+    <script src="/vendors/purchases.js"></script>
     <script>
      
         let editIndex = null;

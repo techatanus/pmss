@@ -44,11 +44,13 @@
             margin-bottom: 20px;
         }
 
-        .sales-table th, .sales-table td {
+        .sales-table th,
+        .sales-table td {
             text-align: center;
         }
 
-        .sales-table input, .sales-table select {
+        .sales-table input,
+        .sales-table select {
             width: 100%;
         }
 
@@ -76,7 +78,8 @@
             text-decoration: underline;
         }
 
-        .btn-success, .btn-danger {
+        .btn-success,
+        .btn-danger {
             width: 100%;
             margin-bottom: 10px;
         }
@@ -130,7 +133,7 @@
                 <input type="text" class="form-control" id="itemSearch" placeholder="Type item name or scan barcode" autocomplete="off">
                 <div id="suggestions" class="list-group"></div>
             </div>
-            <button type="button" class="btn btn-primary">Add Item</button>
+            <button type="button" class="btn btn-primary" id="addItemButton">Add Item</button>
         </form>
 
         <table class="table table-bordered table-striped sales-table">
@@ -141,9 +144,9 @@
                     <th>Item Name</th>
                     <th>Price</th>
                     <th>Quantity</th>
-                    <th>Discount</th>
+                    <!-- <th>Discount</th> -->
                     <th>Total</th>
-                    <th>Update</th>
+                   
                 </tr>
             </thead>
             <tbody id="cartContents">
@@ -151,35 +154,31 @@
             </tbody>
         </table>
         <!-- Panel for additional sales options omitted for brevity -->
-                <form>
-                    <div class="form-group">
-                        <label for="comment">Comment</label>
-                        <textarea class="form-control" id="comment" rows="3"></textarea>
-                    </div>
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="printAfterSale">
-                        <label class="form-check-label" for="printAfterSale">Print receipt after sale</label>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentType">Payment Type</label>
-                        <select class="form-control" id="paymentType">
-                            <option>Cash</option>
-                            <option>Check</option>
-                            <option>Debit Card</option>
-                            <option>Credit Card</option>
-                            <option>Due</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="paymentValue">Payment Value</label>
-                        <input type="text" class="form-control" id="paymentValue">
-                    </div>
-                    <button type="submit" class="btn btn-success">Complete Sale</button>
-                    <button type="button" class="btn btn-danger">Cancel</button>
-                </form>
-            </div>
-        </div>
+       <form id="salesForm" method="POST" action="/submit-sale">
+    <div class="form-group">
+        <label for="comment">Comment</label>
+        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="paymentType">Payment Type</label>
+        <select class="form-control" id="paymentType" name="paymentType">
+            <option value="Cash">Cash</option>
+            <option value="Mpesa">Mpesa</option>
+            <option value="Check">Check</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Due">Due</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="paymentValue">Payment Value</label>
+        <input type="text" class="form-control" id="paymentValue" name="paymentValue">
+    </div>
+    <input type="hidden" id="encryptedCartItems" name="encryptedCartItems" value="">
+    <button type="submit" class="btn btn-success">Print Receipt</button>
+    <button type="button" class="btn btn-danger" id="cancelReceiptButton">Clear Cat</button>
     
+</form>
 
     </div>
     </div>
@@ -189,93 +188,13 @@
             <span class="text-muted">&copy; 2020 - 2024 · <a href="#" target="_blank">DEVPOS</a> V 1.0.0</span>
         </div>
     </footer>
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script>
-    $(document).ready(function () {
-        // Event listener for input in the item search field
-        $('#itemSearch').on('input', function () {
-            const searchTerm = $(this).val().trim(); // Get the trimmed value of the search term
 
-            if (searchTerm.length > 0) {
-                $.ajax({
-                    url: '/search-products', // Backend route for searching products
-                    method: 'GET',
-                    data: { term: searchTerm }, // Sending the search term as a query parameter
-                    success: function (data) {
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="/vendors/salesUpdate/sales.js"></script>
 
-                        $('#suggestions').empty(); // Clear previous suggestions
-
-                        // Loop through the data and append each product as a clickable suggestion
-                        data.forEach(product => {
-                            $('#suggestions').append(`
-                                <a href="#" class="list-group-item list-group-item-action" data-id="${product.p_id}" data-name="${product.p_name}" data-bp="${product.p_bp}" data-sp="${product.p_sp}" data-wp="${product.p_wp}">
-                                    ${product.p_name} - Price: ${product.p_sp}
-                                </a>
-                            `);
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX Error:', status, error); // Log any AJAX errors to the console
-                    }
-                });
-            } else {
-                $('#suggestions').empty(); // Clear suggestions if the search term is empty
-            }
-        });
-
-        // Event listener for clicking a suggestion
-        $('#suggestions').on('click', 'a', function (e) {
-            e.preventDefault(); // Prevent default link behavior
-            const pid = $(this).data('id');
-            const name = $(this).data('name'); // Get product name from data attribute
-            const sp = $(this).data('sp'); // Get selling price from data attribute
-            const bp = $(this).data('bp'); // Get buying price from data attribute
-            const wp = $(this).data('wp'); // Get wholesale price from data attribute
-
-            // Append the selected product to the cart
-            $('#cartContents').append(`
-                <tr>
-                    <td><button class="btn btn-danger btn-sm">Delete</button></td>
-                      
-                    <td>${pid}</td>
-                    <td>${name}</td>
-                    <td id="one">${sp}</td>
-                    <td><input  id="qu" type="number" class="form-control" value="1" min="1"></td>
-                    <td>
-                        <select class="form-control" id ="disc">
-                            <option value="0">x0</option>
-                            <option value="10">x10</option>
-                            <option value="20">x20</option>
-                        </select>
-                    </td>
-                    
-                    <td id="total">ksh ${sp} </td>
-                    <td><button class="btn btn-primary btn-sm">Update</button></td>
-                </tr>
-            `);
-
-            $('#itemSearch').val(''); // Clear the search input field
-            $('#suggestions').empty(); // Clear the suggestions list
-        });
-    });
-</script>
-
-  
-    <script>
-        $(document).ready(function () {
-            function updateClock() {
-                $('#liveclock').text(new Date().toLocaleString());
-            }
-
-            setInterval(updateClock, 1000);
-        });
-
-   
-       
-    </script>
 </body>
 
 </html>
+
+sss
