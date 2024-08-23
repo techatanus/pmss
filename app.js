@@ -219,14 +219,24 @@ app.get('/report', (req, res) => {
 // permit
 app.get('/config', (req, res) => {
     const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
-    const permissionsQuery = 'SELECT permission FROM p WHERE department = ?';
+    const permissionsQuery = 'SELECT permission FROM d_access WHERE department = ?';
 
     db.query(rolesQuery, (err, roles) => {
-        if (err) throw err;
+        if (err) {
+            console.error('Error fetching roles:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        if (roles.length === 0) {
+            return res.status(404).send('No roles found.');
+        }
 
         let selectedRole = req.query.department || roles[0].role;
         db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
-            if (err) throw err;
+            if (err) {
+                console.error('Error fetching permissions:', err);
+                return res.status(500).send('Internal Server Error');
+            }
 
             const permissions = {
                 'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
@@ -241,7 +251,7 @@ app.get('/config', (req, res) => {
 
             const selectedPermissions = existingPermissions.map(perm => perm.permission);
 
-            res.render('config', {
+            res.render('manage', {
                 rls: roles,
                 permissions,
                 selectedRole,

@@ -45,7 +45,7 @@ const addUserPrivilledge = async(req,res,next) =>{
      }
  
      // Delete existing permissions for the department
-     const deleteQuery = 'DELETE FROM permissions_table WHERE department = ?';
+     const deleteQuery = 'DELETE FROM d_access department = ?';
      db.query(deleteQuery, [department], (err, result) => {
          if (err) {
              console.error('Error deleting data:', err.stack);
@@ -53,7 +53,7 @@ const addUserPrivilledge = async(req,res,next) =>{
          }
  
          // Insert new permissions for the department
-         const insertQuery = 'INSERT INTO permissions_table (department, permission) VALUES ?';
+         const insertQuery = 'INSERT INTO d_access (department, permission) VALUES ?';
          const values = permissions.map(permission => [department, permission]);
  
          db.query(insertQuery, [values], (err, results) => {
