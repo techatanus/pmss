@@ -136,9 +136,10 @@
             <div class="report-type">
                 <button onclick="showReport('dailySales')">Daily Sales</button>
                 <button onclick="showReport('paymentMode')" id="mp">Mode of Payment</button>
-                <button onclick="showReport('department')">Department</button>
+               
                 <button onclick="showReport('stockRemaining')">Remaining Stock</button>
                 <button onclick="showReport('stockSold')">Sold Stock</button>
+                <button onclick="showReport('department')">Department</button>
                 <button onclick="showReport('otherReports')">Other Reports</button>
             </div>
             <div id="dailySales" class="report-content">
@@ -147,6 +148,7 @@
                     <thead>
                         <tr>
                             <th>Sale ID</th>
+                            <th>paymentMode</th>
                             <th>Product</th>
                             <th>Quantity</th>
                             <th>Price</th>
@@ -164,8 +166,8 @@
                 <table>
                     <thead>
                         <tr>
+                         <th>Transaction ID</th>
                             <th>Payment Mode</th>
-                            <th>Transaction ID</th>
                             <th>Amount</th>
                             <th>Date</th>
                         </tr>
@@ -254,6 +256,7 @@
                     tbody.innerHTML += `
                         <tr>
                             <td>${row.sale_id}</td>
+                            <td>${row.payment_mode}</td>
                             <td>${row.product}</td>
                             <td>${row.quantity}</td>
                             <td>${row.price}</td>
@@ -265,8 +268,8 @@
                 data.forEach(row => {
                     tbody.innerHTML += `
                         <tr>
+                        <td>${row.transaction_id}</td>
                             <td>${row.payment_mode}</td>
-                            <td>${row.transaction_id}</td>
                             <td>${row.amount}</td>
                             <td>${row.date}</td>
                         </tr>`;

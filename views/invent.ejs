@@ -263,18 +263,18 @@
         <div id="inventoryModal" class="modal" >
             <div class="modal-content">
                 <h2>Add/Edit Inventory Item</h2>
-                <form action="#" method="post" id="myForm">
+                <form action="/addInventory" method="post" id="myForm">
                 <!-- <div class="form-group">
                     <label for="itemId">Item ID</label>
                     <input type="text" id="itemId" placeholder="Enter item ID">
                 </div> -->
                 <div class="form-group">
                     <label for="itemName">Item Name</label>
-                    <input type="text" id="itemName" placeholder="Enter item name">
+                    <input type="text" id="itemName" name="name" placeholder="Enter item name">
                 </div>
                 <div class="form-group">
                     <label for="category">Category</label>
-                    <select id="userRole">
+                    <select id="userRole" name="category">
                         <option value="cashier">Beer</option>
                         <option value="manager">Wines</option>
                         <option value="admin">Spirits</option>
@@ -285,8 +285,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="userRole">Subcategory</label>
-                    <select id="userRole">
+                    <label for="userRole" >Subcategory</label>
+                    <select id="userRole" name="subcategory">
                         <option value="cashier">Main Item</option>
                         <option value="manager">Sub Item</option>
                         <option value="admin">Single Item</option>
@@ -301,20 +301,20 @@
                 </div> -->
                 <div class="form-group">
                     <label for="price">Buying Price</label>
-                    <input type="number" id="price" placeholder="Enter price">
+                    <input type="number" id="price" name="bp" placeholder="Enter price">
                 </div>
                 <div class="form-group">
                     <label for="price">Selling Price</label>
-                    <input type="number" id="price" placeholder="Enter price">
+                    <input type="number" id="price" name="sp" placeholder="Enter price">
                 </div>
                 <div class="form-group">
                     <label for="price">Wholesale Price</label>
-                    <input type="number" id="price" placeholder="Enter price">
+                    <input type="number" id="price" name="wp" placeholder="Enter price">
                 </div>
                
                 <div class="form-group">
-                    <label for="userRole">Product Type</label>
-                    <select id="userRole">
+                    <label for="userRole" >Product Type</label>
+                    <select id="userRole" name="p_type">
                         <option value="cashier">Inventory</option>
                         <option value="manager">Service</option>
                         
@@ -323,7 +323,7 @@
                 </div>
                 <div class="form-group">
                     <label for="price">Expiry Date</label>
-                    <input type="date" id="expd" placeholder="Expiry Date">
+                    <input type="date" id="expd"  name="expd" placeholder="Expiry Date">
                 </div>
                 <div class="actions">
                     <button class="save" onclick="saveInventory()">Save</button>

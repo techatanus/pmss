@@ -24,7 +24,8 @@ const bcrypt = require('bcrypt');
                   res.send('<script>alert("error uploading data")</script>')
                   }else{
                      db.query('SELECT * FROM dev_users',(err,rs)=>{
-                        res.render('./table',{persons : rs});
+                           res.send('<script>alert("data inserted successful")</script>')
+                        // res.render('./table',{persons : rs});
                      })
                   }
                   // res.send('<script>alert("data inserted successful")</script>')
@@ -33,10 +34,10 @@ const bcrypt = require('bcrypt');
             }
       })
  }
-//----------------ADD PRODUCT FUNCTION TO THE DB-------------
-      const addProduct = async(req,res,next)=>{
-// -----capture product from the form and check if exist----
-          const {name,category,bp,sp,wp,stock} = req.body;
+//ADD PRODUCT FUNCTION TO THE DB
+
+ const addProduct = async(req,res,next)=>{
+          const {name,category,suplier,bp,sp,wp,stock,date} = req.body;
             const product_exist = 'SELECT * FROM products WHERE p_name =?';
             await db.query(product_exist,[name],(err,rs)=>{
                      if(rs.length > 0){
@@ -45,12 +46,25 @@ const bcrypt = require('bcrypt');
                         // console.log('Prouct already exists');
                      }else{
                         // --------proceed and insert the product to the db----->
-                        db.query('INSERT INTO products(p_name,p_category,p_bp,p_sp,p_wp,p_quantity) VALUES(?,?,?,?,?,?)',[name,category,bp,sp,wp,stock],(err)=>{
+                        db.query('INSERT INTO products(p_name,p_category,p_suplier,p_bp,p_sp,p_wp,p_quantity,expD) VALUES(?,?,?,?,?,?,?,?)',[name,category,suplier,bp,sp,wp,stock,date],(err)=>{
                             if(err) {
                               console.log('error adding product')
                             }else{
                               db.query('SELECT * FROM products',(err,result)=>{
-                                 res.render('./table',{addedProduct : result});
+                                 if(err){
+                                    console.log('error retrieving data');
+                                     }else{
+                                       db.query('SELECT * FROM p_categories',(err,rs)=>{
+                                         if(err){
+                                           console.log('error retrieving sample');
+                                         }else{
+                                           db.query('SELECT * FROM suppliers',(err,rss)=>{
+                                             res.render('./table', {addedProduct : result, items : rs, sups:rss});
+                                           })
+                                         }
+                                        })
+                                     }
+                                 // res.render('./table',{addedProduct : result});
                               })
                             }
                   

@@ -201,7 +201,7 @@
     </nav>
     <main>
         <header>
-            <h1>DEVPOS - User Roles and Permissions</h1>
+            <h1>DEVPOS - User Roles </h1>
             <button onclick="logout()">Logout</button>
         </header>
         <section>
@@ -217,22 +217,25 @@
                             <th>Role ID</th>
                             <th>Role Name</th>
                             <th>Description</th>
-                            <th>Permissions</th>
+                            <th>Department</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Example Role Row -->
+                     <% items.forEach((item) =>{ %>
                         <tr>
-                            <td>1</td>
-                            <td>Admin</td>
-                            <td>Full access to all features</td>
-                            <td>All</td>
+                            <td><%=item.id%></td>
+                            <td><%=item.role%></td>
+                            <td><%=item.descp%></td>
+                            <td><%=item.dept%></td>
                             <td>
-                                <button class="edit" onclick="openRoleModal(1)">Edit</button>
-                                <button class="delete" onclick="deleteRole(1)">Delete</button>
+                                <button class="edit" onclick="openRoleModal(1)"><a href="#">Edit</a></button>
+                                <button class="delete" onclick="deleteRole(1)"><a href="/del?id=<%=item.id%>">Delete</a> </button>
                             </td>
                         </tr>
+
+                     <%})  %>
                         <!-- Additional rows would be added here -->
                     </tbody>
                 </table>
@@ -243,32 +246,35 @@
         <div id="roleModal" class="modal">
             <div class="modal-content">
                 <h2 id="modalTitle">Add Role</h2>
-                <div class="form-group">
+         <form action="/addRol3s" method="post">
+                    <!-- <div class="form-group">
                     <label for="roleId">Role ID</label>
                     <input type="text" id="roleId" placeholder="Enter role ID">
-                </div>
+                </div> -->
                 <div class="form-group">
                     <label for="roleName">Role Name</label>
-                    <input type="text" id="roleName" placeholder="Enter role name">
+                    <input type="text" id="roleName" name="name" placeholder="Enter role name">
                 </div>
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <input type="text" id="description" placeholder="Enter role description">
+                    <input type="text" id="description" name="description" placeholder="Enter role description">
                 </div>
                 <div class="form-group">
-                    <label for="permissions">Permissions</label>
-                    <select id="permissions" multiple>
-                        <option value="view_sales">View Sales</option>
-                        <option value="edit_sales">Edit Sales</option>
-                        <option value="manage_inventory">Manage Inventory</option>
-                        <option value="view_reports">View Reports</option>
-                        <option value="manage_users">Manage Users</option>
+                    <label for="permissions" >Department</label>
+                    <select id="permissions" name="department"  multiple>
+                        <option value="adminstration">Adminstration</option>
+                        <option value="revenue">Revenue</option>
+                        <option value="casual">Casual</option>
+                        <option value="records">Records</option>
+                        <option value="managerial">Managerial</option>
                     </select>
                 </div>
                 <div class="actions">
                     <button class="save" onclick="saveRole()">Save</button>
-                    <button class="cancel" onclick="closeRoleModal()">Cancel</button>
+                  
                 </div>
+         </form>
+                <button class="cancel" onclick="closeRoleModal()">Cancel</button>
             </div>
         </div>
     </main>
@@ -281,7 +287,7 @@
             } else {
                 document.getElementById('modalTitle').innerText = 'Add Role';
                 // Clear modal fields for new entry
-                document.getElementById('roleId').value = '';
+                // document.getElementById('roleId').value = '';
                 document.getElementById('roleName').value = '';
                 document.getElementById('description').value = '';
                 document.getElementById('permissions').selectedIndex = -1;

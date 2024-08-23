@@ -244,6 +244,7 @@
                         <th>SP</th>
                         <th>WP</th>
                         <th>Quantity</th>
+                        <th>Expiry Date</th>
                         <th colspan="3">Actions</th>
                     </tr>
                 </thead>
@@ -257,6 +258,7 @@
                             <td><%=product.p_sp %></td>
                             <td><%=product.p_wp %></td>
                             <td><%=product.p_quantity%></td>
+                            <td><%=product.expD%></td>
                             <td><a href="/view?id=<%=product.p_id %>">View</a></td>
                             <td><a href="/change?id=<%=product.p_id %>">update</a></td>
                             <td><a href="/del?id=<%=product.p_id %>">delete</a></td>
@@ -278,10 +280,21 @@
                         <div class="form-group">
                             <label for="productName">Category</label>
                             <select  name="category" id="productName">
-                                 <option value="beer">Beer</option>
-                                 <option value="softDrink">Soft drink</option>
-                                 <option value="food">Food</option>
-                                 <option value="wines">Wines</option>
+                                <% items.forEach((item)=>{ %>
+                                    <option value=" <%=item.name %>"> <%=item.name %></option>
+                                <%}) %>
+                                
+                              
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productName">Suplier</label>
+                            <select  name="suplier" id="productName">
+                                <% sups.forEach((sup)=>{ %>
+                                    <option value=" <%=sup.s_name %>"> <%=sup.s_name %></option>
+                                <%}) %>
+                                
+                              
                             </select>
                         </div>
                         <div class="form-group">
@@ -299,6 +312,10 @@
                         <div class="form-group">
                             <label for="productStock">Quantity</label>
                             <input type="number"   name="stock" id="productStock">
+                        </div>
+                        <div class="form-group">
+                            <label for="expDate">Expiry Date</label>
+                            <input type="date"   name="date" id="expDate">
                         </div>
                         <div class="actions">
                             <button class="save" >Save</button>
@@ -391,7 +408,7 @@
 
         function downloadTemplate() {
             const data = [
-                ['Name', 'Category', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity']
+                ['Name', 'Category', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity','Expiry_Date']
             ];
             const csvContent = data.map(e => e.join(",")).join("\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

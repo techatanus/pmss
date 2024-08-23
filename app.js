@@ -37,7 +37,7 @@ app.post('/upload', upload.single('bulkFile'), (req, res) => {
     let isFirstRow = true;
 
     fs.createReadStream(filePath)
-        .pipe(csv(['Name', 'Category', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity']))
+        .pipe(csv(['Name', 'Category', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity','Expiry_Date']))
         .on('data', (row) => {
             if (isFirstRow) {
                 isFirstRow = false; // Skip the first row, which contains the column names
@@ -46,14 +46,15 @@ app.post('/upload', upload.single('bulkFile'), (req, res) => {
             products.push(row);
         })
         .on('end', () => {
-            const query = 'INSERT INTO products (p_name, p_category, p_bp, p_sp, p_wp, p_quantity) VALUES ?';
+            const query = 'INSERT INTO products (p_name, p_category, p_bp, p_sp, p_wp, p_quantity,expD) VALUES ?';
             const values = products.map(product => [
                 product.Name,
                 product.Category,
                 product.Buying_Price,
                 product.Selling_Price,
                 product.Wholesale_Price,
-                product.Quantity
+                product.Quantity,
+                product.Expiry_Date
             ]);
             
             console.log(values);
@@ -139,8 +140,15 @@ app.post('/submit-sale', (req, res) => {
         db.query(salesItemsQuery, [salesItemsData], (err) => {
             if (err) {
                 console.error('Error inserting sales items:', err);
+             
+        // db.query('UPDATE products SET p_quantity = ?'[],(err,rs)=>{
+
+        // })
                 return res.status(500).send('Error inserting sales items');
             }
+//             db.query('SELECT * FROM products WHERE p_id = ?'[salesItemsData[1]],(err,rs)=>{
+//                 console.log(rs);
+//  })
             res.send('<script>alert("Sale and items successfully recorded")</script>');
            // res.send('Sale and items successfully recorded');
         });
@@ -148,6 +156,7 @@ app.post('/submit-sale', (req, res) => {
 });
 
 //reports
+//WHERE s.date BETWEEN ? AND ?
 app.get('/report', (req, res) => {
     const { startDate, endDate, type } = req.query;
 
@@ -156,11 +165,11 @@ app.get('/report', (req, res) => {
         case 'dailySales':
             query = `
                 SELECT si.sale_id, p.p_name AS product, si.quantity, si.price, 
-                       (si.quantity * si.price) AS total, s.date 
+                       (si.quantity * si.price) AS total,s.payment_type AS payment_mode, s.date  
                 FROM sales_items si
-                JOIN products p ON si.product_id =p.p_id
+                JOIN products p ON si.product_id = p.p_id
                 JOIN dev_sales s ON si.sale_id = s.id
-                WHERE s.date BETWEEN ? AND ?;
+                ;
             `;
             break;
         case 'paymentMode':
@@ -168,16 +177,16 @@ app.get('/report', (req, res) => {
                 SELECT s.payment_type AS payment_mode, s.id AS transaction_id, 
                        s.payment_value AS amount, s.date
                 FROM dev_sales s
-                WHERE s.date BETWEEN ? AND ?;
+               ;
             `;
             break;
         case 'stockRemaining':
             query = `
-                SELECT p.p_name AS product, c.name AS category, 
+                SELECT p.p_name AS product, p.p_category AS category, 
                        p.p_quantity AS quantity_remaining, p.date AS last_restocked
                 FROM products p
-                JOIN p_categories c ON p.p_category = c.id
-                WHERE p.date BETWEEN ? AND ?;
+                JOIN p_categories c ON p.p_category = c.name
+                
             `;
             break;
         case 'stockSold':
@@ -185,10 +194,10 @@ app.get('/report', (req, res) => {
                 SELECT p.p_name AS product, c.name AS category, 
                        SUM(si.quantity) AS quantity_sold, s.date AS date_sold
                 FROM sales_items si
-                JOIN products p ON si.product_id = p.p_sid
-                JOIN p_categories c ON p.p_category = c.id
+                JOIN products p ON si.product_id = p.p_id
+                JOIN p_categories c ON p.p_category = c.name
                 JOIN dev_sales s ON si.sale_id = s.id
-                WHERE s.date BETWEEN ? AND ?
+                
                 GROUP BY p.p_name, c.name, s.date;
             `;
             break;
@@ -199,12 +208,48 @@ app.get('/report', (req, res) => {
 
     db.query(query, [startDate, endDate], (err, results) => {
         if (err) {
-            throw err;
+            console.error('Database query error:', err);
+            res.status(500).send('Internal server error');
+            return;
         }
         res.json(results);
     });
 });
 
+// permit
+app.get('/config', (req, res) => {
+    const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
+    const permissionsQuery = 'SELECT permission FROM p WHERE department = ?';
+
+    db.query(rolesQuery, (err, roles) => {
+        if (err) throw err;
+
+        let selectedRole = req.query.department || roles[0].role;
+        db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
+            if (err) throw err;
+
+            const permissions = {
+                'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
+                'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSales', 'manageSuppliers', 'manageCustomers'],
+                'Admin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
+                'SuperAdmin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSales', 'viewReports', 'manageSuppliers', 'manageCustomers', 'configuration'],
+                'Waiters': ['viewSales', 'PrintReceipt'],
+                'Store Keeper': ['manageStock', 'viewStock'],
+                'Chefs': ['viewStock', 'viewSales'],
+                'Washers': ['viewStock', 'manageSuppliers']
+            };
+
+            const selectedPermissions = existingPermissions.map(perm => perm.permission);
+
+            res.render('config', {
+                rls: roles,
+                permissions,
+                selectedRole,
+                selectedPermissions
+            });
+        });
+    });
+});
 
 // logout user
 app.get('/logout',(req,res)=>{

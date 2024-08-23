@@ -3,7 +3,8 @@ const route = express.Router();
 const db = require('../util/db');
 const session = require('express-session');
 const{processRequest, addProduct, addCategory, addsuppliers, userAuthentication} = require('../controllers/utils');
-const{ CompanyDetail, generalSettings, taxSettings } = require('../controllers/settings')
+const{ CompanyDetail, generalSettings, taxSettings } = require('../controllers/settings');
+const { addUseRole, addUserPrivilledge } = require('../controllers/access/role')
 
 
 
@@ -14,8 +15,8 @@ route.use(session({
   saveUninitialized: true,
 }));
 
+//------ROUTES FOR DIFFERENT URI'S-----------
 
-// route for getting all address
 route.get('/',(req,res)=>{
   res.render('./home');
   
@@ -30,7 +31,20 @@ route.get('/',(req,res)=>{
 //  products
 route.get('/t',(req,res)=>{
    db.query('SELECT * FROM products',(err,result)=>{
-    res.render('./table', {addedProduct : result});
+    if(err){
+   console.log('error retrieving data');
+    }else{
+      db.query('SELECT * FROM p_categories',(err,rs)=>{
+        if(err){
+          console.log('error retrieving sample');
+        }else{
+          db.query('SELECT * FROM suppliers',(err,rss)=>{
+            res.render('./table', {addedProduct : result, items : rs, sups:rss});
+          })
+        }
+       })
+    }
+    
    })
     // res.render('./form');
  });
@@ -67,13 +81,17 @@ route.get('/inventory',(req,res)=>{
 })
 //  roles and permision
 route.get('/roles',(req,res)=>{
-  res.render('./roles');
-  
+  db.query('SELECT * FROM d_roles',(err,rs)=>{
+    res.render('./roles',{items : rs})
+})  
  });
 
 //  manage-user-role
 route.get('/manage',(req,res,next)=>{
-   res.render('./manageUser_role')
+  db.query('SELECT * FROM d_roles',(err,rs)=>{
+    res.render('./manageUser_role',{rls: rs})
+  })
+  
 })
 // manage supply
 route.get('/supply',(req,res)=>{
@@ -85,7 +103,14 @@ route.get('/supply',(req,res)=>{
 //  users manage
 route.get('/users', async(req,res)=>{
    await db.query('SELECT * FROM dev_users',(err,rs)=>{
-    res.render('./users', {persons : rs});
+    if(err){
+      console.log('error retrieving data');
+    }else{
+   db.query('SELECT * FROM d_roles',(err,result)=>{
+    res.render('./users', {persons : rs, rules: result});
+   })
+    }
+   
    })
  
   
@@ -162,7 +187,11 @@ route.post('/cdetails',CompanyDetail);
 // genSettings
 route.post('/saveGeneralSettings',generalSettings);
 //TaxSettings
-route.post('/saveTaxSettings',taxSettings)
+route.post('/saveTaxSettings',taxSettings);
+// add roles
+route.post('/addRol3s',addUseRole);
+// grant roles permission
+route.post('/save-roles',addUserPrivilledge);
 
 
 // Export the route object
