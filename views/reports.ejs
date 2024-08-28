@@ -117,14 +117,7 @@
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="#dashboard">Dashboard</a></li>
-            <li><a href="/t">Purchases</a></li>
-            <li><a href="/sales">Sales</a></li>
-            <li><a href="/customers">Customers</a></li>
-            <li><a href="/rep">Reports</a></li>
-
-        </ul>
+        <%- include('./partials/_links')  %>
     </nav>
     <main>
         <header>
@@ -141,6 +134,8 @@
                 <button onclick="showReport('stockSold')">Sold Stock</button>
                 <button onclick="showReport('department')">Department</button>
                 <button onclick="showReport('otherReports')">Other Reports</button>
+                 <button onclick="printReport()">Print Report</button>
+    <button onclick="downloadReport()">Download Report</button>
             </div>
             <div id="dailySales" class="report-content">
                 <h2>Daily Sales Report</h2>
@@ -233,6 +228,7 @@
             </div>
         </section>
     </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
     function showReport(reportId) {
@@ -322,6 +318,128 @@
       //  function logout() {
             // Add your logout functionality here
       //  }
+      
+      
+      document.getElementById('printReceiptBtn').addEventListener('click', function() {
+    generateReceipt();
+    printReceipt();
+});
+
+function generateReceipt() {
+    // Populate receipt date
+    const date = new Date();
+    document.getElementById('receiptDate').innerText = date.toLocaleString();
+
+    // Get cart items and add to receipt
+    const cartItems = document.querySelectorAll('#cartContents tr');
+    const receiptItems = document.getElementById('receiptItems');
+    let totalAmount = 0;
+    receiptItems.innerHTML = ''; // Clear previous items
+
+    cartItems.forEach(function(item) {
+        const itemName = item.querySelector('td:nth-child(3)').textContent.trim();
+        const priceText = item.querySelector('td:nth-child(4)').textContent.trim().replace('ksh', '').trim();
+        const quantity = parseInt(item.querySelector('input.quantity').value.trim());
+        const totalText = item.querySelector('td:nth-child(6)').textContent.trim().replace('ksh', '').trim();
+
+        const price = parseFloat(priceText) || 0;
+        const total = parseFloat(totalText) || 0;
+
+        totalAmount += total;
+
+        const receiptRow = `
+            <div style="display: flex; justify-content: space-between;">
+                <span>${itemName} x${quantity}</span>
+                <span>ksh ${total.toFixed(2)}</span>
+            </div>
+        `;
+        receiptItems.innerHTML += receiptRow;
+    });
+
+    const paymentType = document.getElementById('paymentType').value;
+    document.getElementById('receiptPaymentType').innerText = paymentType;
+    document.getElementById('receiptTotal').innerText = `ksh ${totalAmount.toFixed(2)}`;
+}
+
+function printReceipt() {
+    const receiptContent = document.getElementById('receipt').innerHTML;
+
+    const printWindow = window.open('', '', 'width=300,height=600');
+    printWindow.document.write('<html><head><title>Receipt</title></head><body style="font-family: monospace;">');
+    printWindow.document.write(receiptContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.close();
+
+        // Submit the data after printing
+        submitData();
+    };
+}
+
+function submitData() {
+    // Encrypt and set cart items in the hidden input field
+    const encryptionKey = '3ncryption@key'; // Replace with your encryption key
+    let encryptedCartItems = localStorage.getItem('cartItems');
+    document.getElementById('encryptedCartItems').value = encryptedCartItems;
+
+    // Clear the cart and submit the form
+    clearCartAndSubmit();
+}
+
+function clearCartAndSubmit() {
+    // Clear the cart
+    document.getElementById('cartContents').innerHTML = '';
+
+    // Clear the input fields
+    document.getElementById('comment').value = '';
+    document.getElementById('paymentType').selectedIndex = 0;
+    document.getElementById('paymentValue').value = '';
+
+    // Submit the form
+    document.getElementById('salesForm').submit();
+}
+
+function printReport() {
+    const reportId = document.querySelector('.report-content.active').id;
+    const printContent = document.getElementById(reportId).outerHTML;
+    const originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+    location.reload();
+}
+
+function downloadReport() {
+    const reportId = document.querySelector('.report-content.active').id;
+    const table = document.querySelector(`#${reportId} table`);
+    const rows = Array.from(table.rows);
+
+    // Create a new jsPDF instance
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Add title to the PDF
+    doc.text(`${reportId.replace(/([A-Z])/g, ' $1')}`, 14, 16);
+
+    // Add table content
+    let startY = 30;
+    rows.forEach((row, rowIndex) => {
+        const cells = Array.from(row.cells);
+        cells.forEach((cell, cellIndex) => {
+            const text = cell.textContent || '';
+            doc.text(text, 14 + (cellIndex * 40), startY + (rowIndex * 10));
+        });
+    });
+
+    // Save the PDF with the report ID as the filename
+    doc.save(`${reportId}.pdf`);
+}
+
+
     </script>
 </body>
 </html>

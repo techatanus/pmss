@@ -123,6 +123,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">Inventory</a>
         <!-- Navbar content omitted for brevity -->
+        
     </nav>
 
     <div class="container wrapper">
@@ -175,13 +176,25 @@
         <input type="text" class="form-control" id="paymentValue" name="paymentValue">
     </div>
     <input type="hidden" id="encryptedCartItems" name="encryptedCartItems" value="">
-    <button type="submit" class="btn btn-success">Print Receipt</button>
+    <button type="submit" class="btn btn-success" id="printReceiptBtn">Print Receipt</button>
     <button type="button" class="btn btn-danger" id="cancelReceiptButton">Clear Cat</button>
     
 </form>
 
     </div>
     </div>
+<!-- Hidden receipt content for printing -->
+<div id="receipt" style="display:none; font-family: monospace; width: 300px;">
+    <h3 style="text-align: center;">Devpos Receipt</h3>
+    <p><strong>Date:</strong> <span id="receiptDate"></span></p>
+    <hr>
+    <div id="receiptItems"></div>
+    <hr>
+    <p><strong>Payment Type:</strong> <span id="receiptPaymentType"></span></p>
+    <p><strong>Total:</strong> <span id="receiptTotal"></span></p>
+    <hr>
+    <p style="text-align: center;">Thank you for your purchase!</p>
+</div>
 
     <footer class="footer mt-auto py-3">
         <div class="container text-center">
@@ -192,6 +205,91 @@
    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script src="/vendors/salesUpdate/sales.js"></script>
+<script>
+document.getElementById('printReceiptBtn').addEventListener('click', function() {
+    generateReceipt();
+    printReceipt();
+});
+
+function generateReceipt() {
+    // Populate receipt date
+    const date = new Date();
+    document.getElementById('receiptDate').innerText = date.toLocaleString();
+
+    // Get cart items and add to receipt
+    const cartItems = document.querySelectorAll('#cartContents tr');
+    const receiptItems = document.getElementById('receiptItems');
+    let totalAmount = 0;
+    receiptItems.innerHTML = ''; // Clear previous items
+
+    cartItems.forEach(function(item) {
+        const itemName = item.querySelector('td:nth-child(3)').textContent.trim();
+        const priceText = item.querySelector('td:nth-child(4)').textContent.trim().replace('ksh', '').trim();
+        const quantity = parseInt(item.querySelector('input.quantity').value.trim());
+        const totalText = item.querySelector('td:nth-child(6)').textContent.trim().replace('ksh', '').trim();
+
+        const price = parseFloat(priceText) || 0;
+        const total = parseFloat(totalText) || 0;
+
+        totalAmount += total;
+
+        const receiptRow = `
+            <div style="display: flex; justify-content: space-between;">
+                <span>${itemName} x${quantity}</span>
+                <span>ksh ${total.toFixed(2)}</span>
+            </div>
+        `;
+        receiptItems.innerHTML += receiptRow;
+    });
+
+    const paymentType = document.getElementById('paymentType').value;
+    document.getElementById('receiptPaymentType').innerText = paymentType;
+    document.getElementById('receiptTotal').innerText = `ksh ${totalAmount.toFixed(2)}`;
+}
+
+function printReceipt() {
+    const receiptContent = document.getElementById('receipt').innerHTML;
+
+    const printWindow = window.open('', '', 'width=300,height=600');
+    printWindow.document.write('<html><head><title>Receipt</title></head><body style="font-family: monospace;">');
+    printWindow.document.write(receiptContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.close();
+
+        // Submit the data after printing
+        submitData();
+    };
+}
+
+function submitData() {
+    // Encrypt and set cart items in the hidden input field
+    const encryptionKey = '3ncryption@key'; // Replace with your encryption key
+    let encryptedCartItems = localStorage.getItem('cartItems');
+    document.getElementById('encryptedCartItems').value = encryptedCartItems;
+
+    // Clear the cart and submit the form
+    clearCartAndSubmit();
+}
+
+function clearCartAndSubmit() {
+    // Clear the cart
+    document.getElementById('cartContents').innerHTML = '';
+
+    // Clear the input fields
+    document.getElementById('comment').value = '';
+    document.getElementById('paymentType').selectedIndex = 0;
+    document.getElementById('paymentValue').value = '';
+
+    // Submit the form
+    document.getElementById('salesForm').submit();
+}
+
+
+</script>
 
 </body>
 

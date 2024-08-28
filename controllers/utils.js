@@ -124,31 +124,57 @@ const addsuppliers = async(req,res,next)=>{
 }
 
 // userAuthentication
-const userAuthentication = async(req,res,next)=>{
-     const{name,password} = req.body;
-   const sql = 'SELECT * FROM dev_users WHERE u_name = ?';
-   await db.query(sql,[name],(err,rs)=>{
-        if(err){
-         res.send('<script>alert("User with name do not exist")</script>')
-        }else{
-         const user = rs[0];
-          if(user && bcrypt.compareSync(password ,user.u_pass)){
-            req.session.user = {
-               id: user.u_id,
-               username: user.u_name,
-               email: user.u_email
-           }
-           const username = user.u_name;
-           console.log(username);
-            res.render('./index',{username})
-          }else{
-            res.send('<script>alert("Invalid username or password")</script>')
-          }
-      
+const userAuthentication = async (req, res, next) => {
+    const { name, password } = req.body;
+    const sql = 'SELECT * FROM dev_users WHERE u_name = ?';
+    
+    await db.query(sql, [name], async (err, rs) => {
+        if (err) {
+            res.send('<script>alert("User with name do not exist")</script>');
+        } else {
+            const user = rs[0];
+            if (user && bcrypt.compareSync(password, user.u_pass)) {
+                // Fetch permissions based on the user's role
+                const role = user.u_role; // Assuming the role is stored in `u_role`
+                const permissionsSql = 'SELECT permission FROM d_access WHERE department = ?';
+                
+                await db.query(permissionsSql, [role], (err, permissionsResult) => {
+                    if (err) {
+                        res.send('<script>alert("Error fetching permissions")</script>');
+                    } else {
+                        const permissions = permissionsResult.map(row => row.permission);
+                        
+                        req.session.user = {
+                            id: user.u_id,
+                            username: user.u_name,
+                            email: user.u_email,
+                            role: role,
+                            permissions: permissions // Store permissions in session
+                        };
+                        
+                        const username = user.u_name;
+                     
+                        res.render('./index', { username });
+                    }
+                });
+            } else {
+                res.send('<script>alert("Invalid username or password")</script>');
+            }
         }
-        
-   })
+    });
+};
+
+// userpermission
+function checkPermission(permission) {
+  return (req, res, next) => {
+      if (req.session.user && req.session.user.permissions.includes(permission)) {
+          next();
+      } else {
+          res.status(403).send('Forbidden');
+      }
+  };
 }
+
 
 // Sales_autosearch proucts
 // const Sales_autosearch = async(req,res,next)=>{
@@ -174,4 +200,4 @@ const userAuthentication = async(req,res,next)=>{
 
 
 //  import the functions
-module.exports ={processRequest,addProduct,addCategory,addsuppliers,userAuthentication}
+module.exports ={processRequest,addProduct,addCategory,addsuppliers,userAuthentication,checkPermission}

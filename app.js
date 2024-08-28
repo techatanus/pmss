@@ -37,7 +37,7 @@ app.post('/upload', upload.single('bulkFile'), (req, res) => {
     let isFirstRow = true;
 
     fs.createReadStream(filePath)
-        .pipe(csv(['Name', 'Category', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity','Expiry_Date']))
+        .pipe(csv(['Name', 'Category','Supplier','Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity','Expiry_Date']))
         .on('data', (row) => {
             if (isFirstRow) {
                 isFirstRow = false; // Skip the first row, which contains the column names
@@ -46,15 +46,17 @@ app.post('/upload', upload.single('bulkFile'), (req, res) => {
             products.push(row);
         })
         .on('end', () => {
-            const query = 'INSERT INTO products (p_name, p_category, p_bp, p_sp, p_wp, p_quantity,expD) VALUES ?';
+            const query = 'INSERT INTO products (p_name, p_category,p_suplier, p_bp, p_sp, p_wp, p_quantity,expD) VALUES ?';
             const values = products.map(product => [
                 product.Name,
                 product.Category,
+                product.Supplier,
                 product.Buying_Price,
                 product.Selling_Price,
                 product.Wholesale_Price,
                 product.Quantity,
                 product.Expiry_Date
+
             ]);
             
             console.log(values);
@@ -148,8 +150,13 @@ app.post('/submit-sale', (req, res) => {
             }
 //             db.query('SELECT * FROM products WHERE p_id = ?'[salesItemsData[1]],(err,rs)=>{
 //                 console.log(rs);
-//  })
-            res.send('<script>alert("Sale and items successfully recorded")</script>');
+//  }) 
+ res.send(`
+    <script>
+      alert("Sale and items successfully recorded");
+      window.location.href = '/sales';
+    </script>
+  `);
            // res.send('Sale and items successfully recorded');
         });
     });
@@ -217,54 +224,60 @@ app.get('/report', (req, res) => {
 });
 
 // permit
-app.get('/config', (req, res) => {
-    const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
-    const permissionsQuery = 'SELECT permission FROM d_access WHERE department = ?';
+// app.get('/config', (req, res) => {
+//     const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
+//     const permissionsQuery = 'SELECT permission FROM d_access WHERE department = ?';
 
-    db.query(rolesQuery, (err, roles) => {
+//     db.query(rolesQuery, (err, roles) => {
+//         if (err) {
+//             console.error('Error fetching roles:', err);
+//             return res.status(500).send('Internal Server Error');
+//         }
+
+//         if (roles.length === 0) {
+//             return res.status(404).send('No roles found.');
+//         }
+
+//         let selectedRole = req.query.department || roles[0].role;
+//         db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
+//             if (err) {
+//                 console.error('Error fetching permissions:', err);
+//                 return res.status(500).send('Internal Server Error');
+//             }
+
+//             const permissions = {
+//                 'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
+//                 'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSales', 'manageSuppliers', 'manageCustomers'],
+//                 'Admin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
+//                 'SuperAdmin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSales', 'viewReports', 'manageSuppliers', 'manageCustomers', 'configuration'],
+//                 'Waiters': ['viewSales', 'PrintReceipt'],
+//                 'Store Keeper': ['manageStock', 'viewStock'],
+//                 'Chefs': ['viewStock', 'viewSales'],
+//                 'Washers': ['viewStock', 'manageSuppliers']
+//             };
+
+//             const selectedPermissions = existingPermissions.map(perm => perm.permission);
+
+//             res.render('manage', {
+//                 rls: roles,
+//                 permissions,
+//                 selectedRole,
+//                 selectedPermissions
+//             });
+//         });
+//     });
+// });
+
+// logout user
+route.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
         if (err) {
-            console.error('Error fetching roles:', err);
-            return res.status(500).send('Internal Server Error');
+            return res.redirect('/');
         }
-
-        if (roles.length === 0) {
-            return res.status(404).send('No roles found.');
-        }
-
-        let selectedRole = req.query.department || roles[0].role;
-        db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
-            if (err) {
-                console.error('Error fetching permissions:', err);
-                return res.status(500).send('Internal Server Error');
-            }
-
-            const permissions = {
-                'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
-                'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSales', 'manageSuppliers', 'manageCustomers'],
-                'Admin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
-                'SuperAdmin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSales', 'viewReports', 'manageSuppliers', 'manageCustomers', 'configuration'],
-                'Waiters': ['viewSales', 'PrintReceipt'],
-                'Store Keeper': ['manageStock', 'viewStock'],
-                'Chefs': ['viewStock', 'viewSales'],
-                'Washers': ['viewStock', 'manageSuppliers']
-            };
-
-            const selectedPermissions = existingPermissions.map(perm => perm.permission);
-
-            res.render('manage', {
-                rls: roles,
-                permissions,
-                selectedRole,
-                selectedPermissions
-            });
-        });
+        res.redirect('/');
     });
 });
 
-// logout user
-app.get('/logout',(req,res)=>{
-   res.render('./home');
-})
 
 
 

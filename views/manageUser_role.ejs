@@ -1,284 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS Configuration Page</title>
-    <link rel="stylesheet" href="#">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
+<form action="/save-roles" method="post" style="max-width: 800px; margin: auto; background-color: #f4f4f4; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);">
+    <section class="roles">
+        <!-- Department Selection -->
+        <div style="margin-bottom: 20px;">
+            <label for="department" style="font-size: 18px; font-weight: bold; margin-bottom: 10px; display: block;">Select Role</label>
+            <select name="department" id="department" style="width: 100%; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;" onchange="window.location.href = '/manage?department=' + this.value">
+                <option value=""></option>
+                <% rls.forEach((rl) => { %>
+                    
+                    <option value="<%= rl.role %>" <%= rl.role === selectedRole ? 'selected' : '' %>><%= rl.role %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <!-- Permissions Rendering -->
+        <% const roles = {
+              'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
+              'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
+              'Admin': ['deleteUsers', 'updateUsers'],
+              'SuperAdmin':['AddUsers', 'configuration'],
+              'Waiters': ['viewSales',],
+              'Store Keeper': ['viewStock']
+              
+              
+          };
+
+          Object.keys(roles).forEach((role) => { %>
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 10px;"><%= role %></h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <% roles[role].forEach((permission) => { %>
+                        <div>
+                            <input type="checkbox" name="<%= permission %>" id="<%= permission %>" <%= selectedPermissions.includes(permission) ? 'checked' : '' %>>
+                            <label for="<%= permission %>"><%= permission.charAt(0).toUpperCase() + permission.slice(1).replace(/([A-Z])/g, ' $1') %></label>
+                        </div>
+                    <% }); %>
+                </div>
+                <div style="margin-top: 10px;">
+                    <a href="#" onclick="toggleCheckboxes('<%= role %>', true)" style="color: #007bff; text-decoration: none;">Check All</a> |
+                    <a href="#" onclick="toggleCheckboxes('<%= role %>', false)" style="color: #007bff; text-decoration: none;">Uncheck All</a>
+                </div>
+            </div>
+        <% }); %>
+
+        <!-- Submit Button -->
+        <div style="text-align: center;">
+            <input type="submit" value="Save Changes" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+        </div>
+    </section>
+</form>
+
+<script>
+ function toggleCheckboxes(role, checked) {
+    const roles = {
+             'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
+              'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
+              'Admin': ['deleteUsers', 'updateUsers'],
+              'SuperAdmin':['AddUsers', 'configuration'],
+              'Waiters': ['viewSales',],
+              'Store Keeper': ['viewStock']
+             
+           
+       
+    };
+
+    roles[role].forEach(permission => {
+        const checkbox = document.getElementById(permission);
+        if (checkbox) {
+            checkbox.checked = checked;
         }
+    });
+}
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
+</script>
 
-        .sidebar {
-            background-color: green;
-            color: #fff;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-
-        .main-menu, .sub-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .main-menu li, .sub-menu li {
-            margin: 0 10px;
-        }
-
-        .main-menu li a, .sub-menu li a {
-            color: #fff;
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-        }
-
-        .main-menu li a:hover, .sub-menu li a:hover {
-            background-color: #444;
-            border-radius: 4px;
-        }
-
-        hr {
-            border: 1px solid #555;
-            margin: 10px 0;
-        }
-
-        .content {
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            flex: 1;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display:
-            font-weight: bold;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        .form-group input[type="file"] {
-            border: none;
-        } 
-
-        .required {
-            color: red;
-        }
-
-        .form-actions {
-            margin-top: 20px;
-        }
-
-        .form-actions button {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .form-actions button[type="submit"] {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .form-actions button[type="button"] {
-            background-color: #dc3545;
-            color: #fff;
-            margin-left: 10px;
-        }
-
-        .roles {
-            margin-left: 100px;
-            margin-top: 60px;
-        } 
-    </style>
-</head>
-<body>
-    <div class="container">
-        <nav class="sidebar">
-            <ul class="main-menu">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Employees</a></li>
-                <li><a href="#">Taxes</a></li>
-                <!-- <li><a href="#">Attributes</a></li> -->
-                <!-- <li><a href="#">Expenses Categories</a></li> -->
-                <li><a href="#">Configuration</a></li>
-            </ul>
-            <hr>
-            <ul class="sub-menu">
-                <li><a href="/info">Information</a></li>
-                <li><a href="/general">General</a></li>
-                <li><a href="/taxes">Tax</a></li>
-                <li><a href="/localization">Localization</a></li>
-                <li><a href="/barcode">Barcode</a></li>
-                <li><a href="#">Stock</a></li>
-                <li><a href="/receipt">Receipt</a></li>
-                <li><a href="/invoices">Invoice</a></li>
-                <li><a href="/manage">Manage-user role</a></li>
-                <li><a href="/tableSetting">Table</a></li>
-                <li><a href="/con">Setup & Conf</a></li>
-            </ul>
-        </nav>
-
-        <form action="/save-roles" method="post">
-            <section class="roles">
-                <label for="department">Select Role</label>
-                <select name="department" id="department" style="width: 700px; height: 30px;" onchange="this.form.submit()">
-                    <% rls.forEach((rl) => { %>
-                        <option value="<%= rl.role %>" <%= selectedRole === rl.role ? 'selected' : '' %>><%= rl.role %></option>
-                    <% }) %>
-                </select>
-
-                <!-- Permissions for Cashier -->
-                <h3>Cashier</h3>
-                <p>
-                    <input type="checkbox" name="manageSales" id="manageSales" <%= selectedPermissions.includes('manageSales') ? 'checked' : '' %>>
-                    <label for="manageSales">Manage Sales</label>
-                    <input type="checkbox" name="viewReports" id="viewReports" <%= selectedPermissions.includes('viewReports') ? 'checked' : '' %>>
-                    <label for="viewReports">View Reports</label>
-                    <input type="checkbox" name="PrintReceipt" id="PrintReceipt" <%= selectedPermissions.includes('PrintReceipt') ? 'checked' : '' %>>
-                    <label for="PrintReceipt">Print Receipt</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for Manager -->
-                <h3>Manager</h3>
-                <p>
-                    <input type="checkbox" name="viewUsers" id="viewUsers" <%= selectedPermissions.includes('viewUsers') ? 'checked' : '' %>>
-                    <label for="viewUsers">View Users</label>
-                    <input type="checkbox" name="manageStock" id="manageStock" <%= selectedPermissions.includes('manageStock') ? 'checked' : '' %>>
-                    <label for="manageStock">Manage Stock</label>
-                    <input type="checkbox" name="editReports" id="editReports" <%= selectedPermissions.includes('editReports') ? 'checked' : '' %>>
-                    <label for="editReports">Edit Reports</label>
-                    <input type="checkbox" name="manageSales" id="manageSalesManager" <%= selectedPermissions.includes('manageSales') ? 'checked' : '' %>>
-                    <label for="manageSalesManager">Manage Sales</label>
-                    <input type="checkbox" name="manageSuppliers" id="manageSuppliers" <%= selectedPermissions.includes('manageSuppliers') ? 'checked' : '' %>>
-                    <label for="manageSuppliers">Manage Suppliers</label>
-                    <input type="checkbox" name="manageCustomers" id="manageCustomers" <%= selectedPermissions.includes('manageCustomers') ? 'checked' : '' %>>
-                    <label for="manageCustomers">Manage Customers</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for Admin -->
-                <h3>Admin</h3>
-                <p>
-                    <input type="checkbox" name="viewUsers" id="viewUsersAdmin" <%= selectedPermissions.includes('viewUsers') ? 'checked' : '' %>>
-                    <label for="viewUsersAdmin">View Users</label>
-                    <input type="checkbox" name="deleteUsers" id="deleteUsers" <%= selectedPermissions.includes('deleteUsers') ? 'checked' : '' %>>
-                    <label for="deleteUsers">Delete Users</label>
-                    <input type="checkbox" name="updateUsers" id="updateUsers" <%= selectedPermissions.includes('updateUsers') ? 'checked' : '' %>>
-                    <label for="updateUsers">Update Users</label>
-                    <input type="checkbox" name="AddUsers" id="AddUsers" <%= selectedPermissions.includes('AddUsers') ? 'checked' : '' %>>
-                    <label for="AddUsers">Add Users</label>
-                    <input type="checkbox" name="manageStock" id="manageStockAdmin" <%= selectedPermissions.includes('manageStock') ? 'checked' : '' %>>
-                    <label for="manageStockAdmin">Manage Stock</label>
-                    <input type="checkbox" name="editReports" id="editReportsAdmin" <%= selectedPermissions.includes('editReports') ? 'checked' : '' %>>
-                    <label for="editReportsAdmin">Edit Reports</label>
-                    <input type="checkbox" name="manageSuppliers" id="manageSuppliersAdmin" <%= selectedPermissions.includes('manageSuppliers') ? 'checked' : '' %>>
-                    <label for="manageSuppliersAdmin">Manage Suppliers</label>
-                    <input type="checkbox" name="manageCustomers" id="manageCustomersAdmin" <%= selectedPermissions.includes('manageCustomers') ? 'checked' : '' %>>
-                    <label for="manageCustomersAdmin">Manage Customers</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for SuperAdmin -->
-                <h3>SuperAdmin</h3>
-                <p>
-                    <input type="checkbox" name="viewUsers" id="viewUsersSuperAdmin" <%= selectedPermissions.includes('viewUsers') ? 'checked' : '' %>>
-                    <label for="viewUsersSuperAdmin">View Users</label>
-                    <input type="checkbox" name="deleteUsers" id="deleteUsersSuperAdmin" <%= selectedPermissions.includes('deleteUsers') ? 'checked' : '' %>>
-                    <label for="deleteUsersSuperAdmin">Delete Users</label>
-                    <input type="checkbox" name="updateUsers" id="updateUsersSuperAdmin" <%= selectedPermissions.includes('updateUsers') ? 'checked' : '' %>>
-                    <label for="updateUsersSuperAdmin">Update Users</label>
-                    <input type="checkbox" name="AddUsers" id="AddUsersSuperAdmin" <%= selectedPermissions.includes('AddUsers') ? 'checked' : '' %>>
-                    <label for="AddUsersSuperAdmin">Add Users</label>
-                    <input type="checkbox" name="manageStock" id="manageStockSuperAdmin" <%= selectedPermissions.includes('manageStock') ? 'checked' : '' %>>
-                    <label for="manageStockSuperAdmin">Manage Stock</label>
-                    <input type="checkbox" name="editReports" id="editReportsSuperAdmin" <%= selectedPermissions.includes('editReports') ? 'checked' : '' %>>
-                    <label for="editReportsSuperAdmin">Edit Reports</label>
-                    <input type="checkbox" name="manageSales" id="manageSalesSuperAdmin" <%= selectedPermissions.includes('manageSales') ? 'checked' : '' %>>
-                    <label for="manageSalesSuperAdmin">Manage Sales</label>
-                    <input type="checkbox" name="viewReports" id="viewReportsSuperAdmin" <%= selectedPermissions.includes('viewReports') ? 'checked' : '' %>>
-                    <label for="viewReportsSuperAdmin">View Reports</label>
-                    <input type="checkbox" name="manageSuppliers" id="manageSuppliersSuperAdmin" <%= selectedPermissions.includes('manageSuppliers') ? 'checked' : '' %>>
-                    <label for="manageSuppliersSuperAdmin">Manage Suppliers</label>
-                    <input type="checkbox" name="manageCustomers" id="manageCustomersSuperAdmin" <%= selectedPermissions.includes('manageCustomers') ? 'checked' : '' %>>
-                    <label for="manageCustomersSuperAdmin">Manage Customers</label>
-                    <input type="checkbox" name="configuration" id="configurationSuperAdmin" <%= selectedPermissions.includes('configuration') ? 'checked' : '' %>>
-                    <label for="configurationSuperAdmin">Configuration</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for Waiters -->
-                <h3>Waiters</h3>
-                <p>
-                    <input type="checkbox" name="viewSales" id="viewSalesWaiters" <%= selectedPermissions.includes('viewSales') ? 'checked' : '' %>>
-                    <label for="viewSalesWaiters">View Sales</label>
-                    <input type="checkbox" name="PrintReceipt" id="PrintReceiptWaiters" <%= selectedPermissions.includes('PrintReceipt') ? 'checked' : '' %>>
-                    <label for="PrintReceiptWaiters">Print Receipt</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for Store Keeper -->
-                <h3>Store Keeper</h3>
-                <p>
-                    <input type="checkbox" name="manageStock" id="manageStockStoreKeeper" <%= selectedPermissions.includes('manageStock') ? 'checked' : '' %>>
-                    <label for="manageStockStoreKeeper">Manage Stock</label>
-                    <input type="checkbox" name="viewStock" id="viewStockStoreKeeper" <%= selectedPermissions.includes('viewStock') ? 'checked' : '' %>>
-                    <label for="viewStockStoreKeeper">View Stock</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for Chefs -->
-                <h3>Chefs</h3>
-                <p>
-                    <input type="checkbox" name="viewStock" id="viewStockChefs" <%= selectedPermissions.includes('viewStock') ? 'checked' : '' %>>
-                    <label for="viewStockChefs">View Stock</label>
-                    <input type="checkbox" name="viewSales" id="viewSalesChefs" <%= selectedPermissions.includes('viewSales') ? 'checked' : '' %>>
-                    <label for="viewSalesChefs">View Sales</label>
-                </p>
-                <hr>
-
-                <!-- Permissions for Washers -->
-                <h3>Washers</h3>
-                <p>
-                    <input type="checkbox" name="viewStock" id="viewStockWashers" <%= selectedPermissions.includes('viewStock') ? 'checked' : '' %>>
-                    <label for="viewStockWashers">View Stock</label>
-                    <input type="checkbox" name="manageSuppliers" id="manageSuppliersWashers" <%= selectedPermissions.includes('manageSuppliers') ? 'checked' : '' %>>
-                    <label for="manageSuppliersWashers">Manage Suppliers</label>
-                </p>
-                <hr>
-
-                <!-- General Action Buttons -->
-                <input type="submit" style="padding: 10px;margin: 20px;" value="Save Changes">
-            </section>
-        </form>
-    </div>
-</body>
-</html>

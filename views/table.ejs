@@ -214,14 +214,7 @@
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="#dashboard">Dashboard</a></li>
-            <li><a href="/t">Purchases</a></li>
-            <li><a href="/sales">Sales</a></li>
-            <li><a href="/customers">Customers</a></li>
-            <li><a href="/rep">Reports</a></li>
-           
-        </ul>
+        <%- include('./partials/_links')  %>
     </nav>
     <main>
         <header>
@@ -408,7 +401,7 @@
 
         function downloadTemplate() {
             const data = [
-                ['Name', 'Category', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity','Expiry_Date']
+                ['Name', 'Category','Supplier', 'Buying_Price', 'Selling_Price', 'Wholesale_Price', 'Quantity','Expiry_Date']
             ];
             const csvContent = data.map(e => e.join(",")).join("\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
