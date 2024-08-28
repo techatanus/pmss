@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #333;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: slideIn 1s ease-out;
+            width: 500px; /* Adjust the width to make it wider */
+            height: auto; /* Adjust the height to fit the content */
+            margin: 0 auto;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        
+        input[type="text"], input[type="date"] {
+            width: calc(50% - 10px); /* Make the input fields side by side */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            animation: bounceIn 1.2s ease-in-out;
+        }
+        
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Additional styling for two-column layout */
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .form-group > label {
+            width: 48%;
+        }
+
+        .form-group > input {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Product</h1>
+        <form action="/update_product" method="POST">
+            <input type="hidden" name="p_id" value="<%= product.p_id %>">
+
+            <div class="form-group">
+                <label for="p_name">Product Name:</label>
+                <input type="text" id="p_name" name="p_name" value="<%= product.p_name %>">
+
+                <label for="p_category">Category:</label>
+                <input type="text" id="p_category" name="p_category" value="<%= product.p_category %>">
+            </div>
+
+            <div class="form-group">
+                <label for="p_suplier">Supplier:</label>
+                <input type="text" id="p_suplier" name="p_suplier" value="<%= product.p_suplier %>">
+
+                <label for="p_bp">Buying Price:</label>
+                <input type="text" id="p_bp" name="p_bp" value="<%= product.p_bp %>">
+            </div>
+
+            <div class="form-group">
+                <label for="p_sp">Selling Price:</label>
+                <input type="text" id="p_sp" name="p_sp" value="<%= product.p_sp %>">
+
+                <label for="p_wp">Wholesale Price:</label>
+                <input type="text" id="p_wp" name="p_wp" value="<%= product.p_wp %>">
+            </div>
+
+            <div class="form-group">
+                <label for="p_quantity">Quantity:</label>
+                <input type="text" id="p_quantity" name="p_quantity" value="<%= product.p_quantity %>">
+
+                <label for="expD">Expiration Date:</label>
+                <input type="date" id="expD" name="expD" value="<%= product.expD %>">
+            </div>
+
+            <button type="submit">Update Product</button>
+        </form>
+    </div>
+
+    <script>
+        // Add some delay to the form animation to make it smoother
+        window.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelector('form').style.animationDelay = '0.5s';
+            document.querySelectorAll('input, label').forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>
+

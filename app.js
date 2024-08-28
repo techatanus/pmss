@@ -67,7 +67,14 @@ app.post('/upload', upload.single('bulkFile'), (req, res) => {
                     res.status(500).send('Error inserting data.');
                     return;
                 }
-                res.send('<script>alert("File uploaded and data inserted successfully!")</script>');
+                res.send(`
+                <script>
+                  alert("File uploaded and data inserted successfully!");
+                  window.location.href = '/t';
+                </script>
+              `);
+                  
+                // res.send('<script>alert("File uploaded and data inserted successfully!")</script>');
             });
         })
         .on('error', (err) => {
@@ -111,9 +118,8 @@ app.post('/submit-sale', (req, res) => {
         try {
             const bytes = CryptoJS.AES.decrypt(encryptedCartItems, encryptionKey);
             const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-           
-            cartItems = JSON.parse(decryptedData);  
-              } catch (error) {
+            cartItems = JSON.parse(decryptedData);
+        } catch (error) {
             console.error('Error parsing cart items:', error);
             return res.status(500).send('Error parsing cart items');
         }
@@ -128,11 +134,9 @@ app.post('/submit-sale', (req, res) => {
         }
 
         const saleId = result.insertId;
-       
+
         // Prepare sales items data for insertion
         const salesItemsData = cartItems.map(item => [saleId, item.id, item.quantity, item.sp]);
-            //  console.log(salesItemsData);
-        // Check if salesItemsData has correct values
         if (salesItemsData.length === 0) {
             return res.status(400).send('No sales items to insert.');
         }
@@ -142,22 +146,37 @@ app.post('/submit-sale', (req, res) => {
         db.query(salesItemsQuery, [salesItemsData], (err) => {
             if (err) {
                 console.error('Error inserting sales items:', err);
-             
-        // db.query('UPDATE products SET p_quantity = ?'[],(err,rs)=>{
-
-        // })
                 return res.status(500).send('Error inserting sales items');
             }
-//             db.query('SELECT * FROM products WHERE p_id = ?'[salesItemsData[1]],(err,rs)=>{
-//                 console.log(rs);
-//  }) 
- res.send(`
-    <script>
-      alert("Sale and items successfully recorded");
-      window.location.href = '/sales';
-    </script>
-  `);
-           // res.send('Sale and items successfully recorded');
+
+            // Update the p_quantity in the products table
+            const updateProductQueries = cartItems.map(item => {
+                return new Promise((resolve, reject) => {
+                    const updateQuery = 'UPDATE products SET p_quantity = p_quantity - ? WHERE p_id = ?';
+                    db.query(updateQuery, [item.quantity, item.id], (err) => {
+                        if (err) {
+                            console.error('Error updating product quantity:', err);
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            });
+
+            // Execute all update queries in parallel
+            Promise.all(updateProductQueries)
+                .then(() => {
+                    res.send(`
+                        <script>
+                            alert("Sale and items successfully recorded");
+                            window.location.href = '/sales';
+                        </script>
+                    `);
+                })
+                .catch((err) => {
+                    res.status(500).send('Error updating product quantities');
+                });
         });
     });
 });

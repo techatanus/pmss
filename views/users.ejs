@@ -237,41 +237,41 @@
     </div>
 <script src="/vendors/users.js"></script>
     <script>
-        function logout() {
-            // Add your logout functionality here
-        }
+    function openAddUserModal() {
+    document.getElementById('modalTitle').innerText = 'Add New User';
+    document.getElementById('userName').value = '';
+    document.getElementById('userEmail').value = '';
+    document.getElementById('userRole').value = 'cashier';
+    document.getElementById('userModal').style.display = 'flex';
+}
 
-        function openAddUserModal() {
-            document.getElementById('modalTitle').innerText = 'Add New User';
-            document.getElementById('userName').value = '';
-            document.getElementById('userEmail').value = '';
-            document.getElementById('userRole').value = 'cashier';
-            document.getElementById('userModal').style.display = 'flex';
-        }
+function editUser(user) {
+    document.getElementById('modalTitle').innerText = 'Edit User';
+    
+    // Populate the form with user details
+    document.getElementById('userName').value = user.u_name;
+    document.getElementById('userEmail').value = user.u_email;
+    document.getElementById('userRole').value = user.u_role;
+    
+    document.getElementById('userModal').style.display = 'flex';
+}
 
-        function editUser(userName) {
-            document.getElementById('modalTitle').innerText = 'Edit User';
-            // Populate the modal with user details (dummy data for example)
-            document.getElementById('userName').value = userName;
-            document.getElementById('userEmail').value = 'jane.smith@example.com';
-            document.getElementById('userRole').value = 'cashier';
-            document.getElementById('userModal').style.display = 'flex';
-        }
+function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
 
-        function saveUser() {
-            // Save user functionality here
-            closeModal();
-        }
+// Add event listeners to each edit button
+document.querySelectorAll('.edit').forEach((button, index) => {
+    button.addEventListener('click', () => {
+        const user = {
+            u_name: button.closest('.user-card').querySelector('h2').innerText.split(' - ')[0],
+            u_role: button.closest('.user-card').querySelector('p:nth-child(2) strong').nextSibling.textContent.trim(),
+            u_email: button.closest('.user-card').querySelector('p:nth-child(3) strong').nextSibling.textContent.trim()
+        };
+        editUser(user);
+    });
+});
 
-        function closeModal() {
-            document.getElementById('userModal').style.display = 'none';
-        }
-
-        function deleteUser(userName) {
-            if (confirm('Are you sure you want to delete ' + userName + '?')) {
-                // Delete user functionality here
-            }
-        }
     </script>
 </body>
 </html>

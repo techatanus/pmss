@@ -4,7 +4,8 @@ const db = require('../util/db');
 const session = require('express-session');
 const{processRequest, addProduct, addCategory, addsuppliers, userAuthentication,checkPermission} = require('../controllers/utils');
 const{ CompanyDetail, generalSettings, taxSettings } = require('../controllers/settings');
-const { addUseRole, addUserPrivilledge } = require('../controllers/access/role')
+const { addUseRole, addUserPrivilledge } = require('../controllers/access/role');
+const { deleteProduct, updateStock, postUpdate } = require('../controllers/crud/crud');
 
 
 
@@ -434,7 +435,11 @@ route.post('/saveTaxSettings',taxSettings);
 route.post('/addRol3s',addUseRole);
 // grant roles permission
 route.post('/save-roles',addUserPrivilledge);
-
-
+// delete product
+route.get('/del',deleteProduct);
+// retrieve Products
+route.get('/change',updateStock);
+// updateproduct
+route.post('/update_product',postUpdate)
 // Export the route object
 module.exports = route;
