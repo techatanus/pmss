@@ -1,0 +1,114 @@
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+        
+        
+            main {
+                margin-left: 250px;
+                padding: 20px;
+                flex: 1;
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: white;
+                padding: 10px 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            header h1 {
+                color: #4CAF50;
+            }
+         
+            header button:hover {
+                background-color: #45a049;
+            }
+            section {
+                margin-top: 20px;
+            }
+            .report-type {
+                display: flex;
+                justify-content: space-around;
+                margin-bottom: 20px;
+            }
+            .report-type button {
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+            .report-type button:hover {
+                background-color: #45a049;
+            }
+            .report-content {
+                display: none;
+            }
+            .report-content.active {
+                display: block;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            table, th, td {
+                border: 1px solid #ddd;
+            }
+            th, td {
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #4CAF50;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+     
+
+        <h2>Daily Sales </h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>paymentMode</th>
+                  
+                    <th colspan="2" >Action</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Daily sales data goes here -->
+                <%   sales.forEach((row)=>{ %>
+
+                    <tr>
+                                           <td><%=row.sale_id %></td>
+                                           <td><%=row.product%></td>                                               
+                                                   <td><%=row.quantity %></td>
+                                                   <td><%=row.price%></td>
+                                                    <td><%=row.total%></td>
+                                                    <td><%=row.payment_mode%></td>
+                                                 <td>
+                                                
+                                                   <a href="/returnItem/<%=row.sale_id %>" onclick="confirm('do you want to return extra products to Mainstock')">return</a>
+
+                                                 </td>
+                                                </tr>`;
+               <% })  %>
+            </tbody>
+        </table>
+    
+    </body>
+    </html>
+  

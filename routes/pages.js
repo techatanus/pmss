@@ -2,10 +2,12 @@ const express = require('express');
 const route = express.Router();
 const db = require('../util/db');
 const session = require('express-session');
-const{processRequest, addProduct, addCategory, addsuppliers, userAuthentication,checkPermission} = require('../controllers/utils');
+const{processRequest, addTenant, addCategory, addHouses, userAuthentication,checkPermission, deleteCategory} = require('../controllers/utils');
 const{ CompanyDetail, generalSettings, taxSettings } = require('../controllers/settings');
 const { addUseRole, addUserPrivilledge } = require('../controllers/access/role');
-const { deleteProduct, updateStock, postUpdate } = require('../controllers/crud/crud');
+const { deleteProduct, updateStock, postUpdate, updateSoldItem, updateCategory, stcockTransfer, stockTransfer, updateUser, updateSuppler } = require('../controllers/crud/crud');
+const { companySetup, adminAccount, activatePos } = require('../controllers/middleware/setup');
+const { editrole } = require('../controllers/middleware/manageRoles');
 
 
 
@@ -23,16 +25,153 @@ route.get('/', (req, res) => {
   res.render('./home');
 });
 
+// categupate
+route.get('/updt',(req,res)=>{
+  const username = req.session.user ? req.session.user.username : 'Guest';
+const id = req.query.id;
+
+db.query('SELECT * FROM p_categories WHERE id = ?',[id],(err,rs)=>{
+       if(err){
+        throw err;
+       }
+       res.render('./updateCategory',{categ : rs[0],username })
+})
+});
+
+// receive product from supplier
+route.get('/rec',(req,res) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  const u_id = req.query.id;
+  const receiptPd = 'SELECT * FROM products WHERE p_id = ?';
+  db.query(receiptPd,[u_id],(err,rs) => {
+    if(err){
+      console.log('error retrieving products');
+    }
+    res.render('./receiveStock',{product : rs[0], username});
+  })
+})
+// sales-return
+route.get('/return_s',(req,res) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  db.query(" SELECT si.sale_id, p.p_name AS product, si.quantity, si.price,(si.quantity * si.price) AS total,s.payment_type AS payment_mode, s.date FROM sales_items si JOIN products p ON si.product_id = p.p_id JOIN dev_sales s ON si.sale_id = s.id",(err,rs)=>{
+  
+    res.render('./returns', {sales : rs,username})
+  })
+  });
+  // delete suppliers
+  route.get('/delsup',(req,res,next)=>{
+    const sip = req.query.id;
+     db.query('DELETE FROM houses WHERE id = ?',[sip],(err,rs) => {
+       if(err) {
+        console.log('error deleting record');
+       }else{
+        res.send(`
+         <script>
+         alert('you have successfully deleted the record');
+          window.location.href = '/t';
+         </script>
+        `)
+       }
+     })
+  })
+  // creste client sudo
+  route.get('/crsdo',(req,res) => {
+     res.render('./crsudo');
+  });
+  // activate product
+  route.get('/active',(req,res) => {
+    res.render('./productActivation')
+  });
+
+  // del user
+  route.get('/deluser',(req,res) => {
+     const id = req.query.id;
+     db.query('DELETE FROM dev_users WHERE u_id = ?',[id],(err,rs) => {
+        if(err){
+          console.log('error deleting record');
+        }
+        res.send(`
+           <script>
+              alert('record deleted successful');
+              window.location.href = '/users';
+           </script>
+        `)
+     })
+  });
+  // update user
+  route.get('/upd',(req,res) => {
+    const id = req.query.id;
+    db.query('SELECT * FROM dev_users WHERE u_id= ?',[id],(err,rs) => {
+        if(err){
+          console.log('error retrieving user data');
+
+        }
+        res.render('./upduser', {users : rs[0]})
+    })
+    
+  });
+  // updatesuplier
+  route.get('/updatesup',(req,res)=> {
+    const id= req.query.id;
+    db.query('SELECT * FROM houses WHERE id = ?',[id],(err,rs) =>{
+         if(err){
+          console.log('error retrieving data');
+         }
+       res.render('./updsupply',{supps : rs[0]});
+
+    })
+  });
+  // delete role
+  route.get('/de',(req,res) => {
+    const id = req.query.id;
+    db.query('DELETE FROM d_roles WHERE id = ?',[id],(err,rs) => {
+       if(err){
+         console.log('error deleting record');
+       }
+       res.send(`
+          <script>
+             alert('record deleted successful');
+             window.location.href = '/roles';
+          </script>
+       `)
+    })
+ });
+
+//  update roles
+route.get('/editrole',(req,res) => {
+  const id = req.query.id;
+  db.query('SELECT * FROM d_roles WHERE id= ?',[id],(err,rs) => {
+      if(err){
+        console.log('error retrieving user data');
+
+      }
+      res.render('./editRole', {users : rs[0]})
+  })
+  
+});
+
 route.get('/h', checkPermission('manageSales'), (req, res) => {
     // Log permissions to confirm it's set
+    const username = req.session.user ? req.session.user.username : 'Guest';
     console.log('Permissions:', req.session.user ? req.session.user.permissions : 'No permissions found');
-    
-    // Ensure permissions are passed to the template
-    res.render('./index', { permissions: req.session.user ? req.session.user.permissions : [] });
+    db.query(" SELECT si.sale_id, p.p_name AS product, si.quantity, si.price,(si.quantity * si.price) AS total,s.payment_type AS payment_mode, s.date,(p.p_bp * si.quantity) as profit FROM sales_items si JOIN products p ON si.product_id = p.p_id JOIN dev_sales s ON si.sale_id = s.id",(err,rs)=>{
+          // Ensure permissions are passed to the template
+        db.query("SELECT COUNT(p_name)as tenants,COUNT(p_category)as rooms FROM products;",(err,results)=>{
+           if(err){
+            console.log('error fetching data')
+           }else{
+            res.render('./index', { permissions: req.session.user ? req.session.user.permissions : [], username:req.session.user , sales : rs, result :results[0],username });   
+           }
+        })
+   
+    })
+
 });
 
 // Products - Assuming "viewProducts" permission is required
 route.get('/t', checkPermission('viewStock'), (req, res) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  
   db.query('SELECT * FROM products', (err, result) => {
       if (err) {
           console.log('error retrieving data');
@@ -41,8 +180,8 @@ route.get('/t', checkPermission('viewStock'), (req, res) => {
               if (err) {
                   console.log('error retrieving sample');
               } else {
-                  db.query('SELECT * FROM suppliers', (err, rss) => {
-                      res.render('./table', { addedProduct: result, items: rs, sups: rss });
+                  db.query('SELECT * FROM houses', (err, rss) => {
+                      res.render('./table', { addedProduct: result, items: rs, sups: rss ,username});
                   });
               }
           });
@@ -51,14 +190,31 @@ route.get('/t', checkPermission('viewStock'), (req, res) => {
 });
 // Sales - "manageSales" permission
 route.get('/sales', checkPermission('manageSales'), (req, res) => {
-  res.render('./book');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./book',{username});
 });
 
 // //  admin
 route.get('/sup', checkPermission('configuration'),(req,res)=>{
-  res.render('./super');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./super',{username});
   
  });
+
+ route.get('/returnItem/:id',checkPermission('manageSales'),(req,res,next)=>{
+  const username = req.session.user ? req.session.user.username : 'Guest';
+ const salesId = req.params.id;
+ const sql = 'SELECT * FROM sales_items WHERE sale_id = ?';
+  
+   db.query(sql,[salesId],(err,rs)=>{
+      if(err){
+console.log('error retrieving data');
+      }else{
+        res.render('./updateSalesItem',{data : rs[0],username})
+      }
+   })
+  
+ })
 
 //------ROUTES FOR DIFFERENT URI'S-----------
 
@@ -111,19 +267,22 @@ route.get('/sup', checkPermission('configuration'),(req,res)=>{
 // //  settings
 
   route.get('/settings',checkPermission('configuration'),(req,res)=>{
-  res.render('./settings');
+    const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./settings',{username});
   
  });
 
 
 // Reports - "viewReports" permission
 route.get('/rep', checkPermission('viewReports'), (req, res) => {
-  res.render('./reports');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./reports',{username});
 });
 
 // Customers - "manageCustomers" permission
 route.get('/customers', checkPermission('manageCustomers'), (req, res) => {
-  res.render('./customers');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./customers',{username});
 });
 
 // Settings - "configuration" permission (or any relevant permission for settings)
@@ -138,21 +297,38 @@ route.get('/customers', checkPermission('manageCustomers'), (req, res) => {
 
 // Inventory Management - "viewStock" permission for Store Keepers
 route.get('/inventory', checkPermission('viewStock'), (req, res) => {
-  db.query('SELECT * FROM products', (err, result) => {
-      res.render('./invent', { addedProduct: result });
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  const st = 'received';
+  
+  db.query('SELECT t.p_id, t.p_name,p.payment_date as date,t.houseno, COALESCE(SUM(p.amount_paid), 0) AS total_paid FROM products t LEFT JOIN payments p ON t.p_id = p.tenant_id GROUP BY t.p_id, p.tenant_id',(err, result) => {
+    if(err) throw err;
+    db.query('SELECT * FROM houses WHERE status < 1',(err,casups)=>{
+      res.render('./invent', { addedProduct: result,casup : casups, username });
+    })
+      
+
+  });
+});
+// view category
+route.get('/categ', checkPermission('viewStock'), (req, res) => {
+  db.query('SELECT * FROM p_categories', (err, result) => {
+    const username = req.session.user ? req.session.user.username : 'Guest';
+      res.render('./categ', { addedProduct: result , username});
   });
 });
 
 // Roles and Permissions - "manageRoles" permission
 route.get('/roles', checkPermission('configuration'), (req, res) => {
   db.query('SELECT * FROM d_roles', (err, rs) => {
-      res.render('./roles', { items: rs });
+    const username = req.session.user ? req.session.user.username : 'Guest';
+      res.render('./roles', { items: rs , username});
   });
 });
 
 // Manage User Role - "configuration" permission
 // manage-user-role
 route.get('/manage',checkPermission('configuration'),(req, res, next) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
     db.query('SELECT * FROM d_roles', (err, rs) => {
         if (err) {
             console.error('Error retrieving roles:', err);
@@ -177,14 +353,12 @@ route.get('/manage',checkPermission('configuration'),(req, res, next) => {
                 }
 
                 const permissions = {
-                    'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
-                    'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSales', 'manageSuppliers', 'manageCustomers'],
-                    'Admin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
-                    'SuperAdmin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSales', 'viewReports', 'manageSuppliers', 'manageCustomers', 'configuration'],
-                    'Waiters': ['viewSales', 'PrintReceipt'],
-                    'Store Keeper': ['manageStock', 'viewStock'],
-                    'Chefs': ['viewStock', 'viewSales'],
-                    'Washers': ['viewStock', 'manageSuppliers']
+                  'Cashier': ['collectRent', 'viewReceipts', 'generateInvoice'],
+                  'Manager': ['viewTenants', 'manageProperties', 'editRentalReports', 'managePayments', 'manageContracts'],
+                  'Admin': ['deleteTenants', 'updateTenants', 'updateHouses'],
+                  'SuperAdmin': ['addUsers', 'configureSystem', 'viewAllReports'],
+                  'Caretaker': ['viewHouses', 'updateHouseStatus'],
+                  'Property Auditor': ['viewRentalBalance', 'viewOccupiedHouses', 'viewVacantHouses']
                 };
 
                 const selectedPermissions = existingPermissions.map(perm => perm.permission);
@@ -193,7 +367,8 @@ route.get('/manage',checkPermission('configuration'),(req, res, next) => {
                     rls: rs,
                     permissions,
                     selectedRole,
-                    selectedPermissions
+                    selectedPermissions,
+                    username
                 });
             });
         });
@@ -203,19 +378,32 @@ route.get('/manage',checkPermission('configuration'),(req, res, next) => {
 
 // Manage Supply - "manageSuppliers" permission
 route.get('/supply', checkPermission('manageSuppliers'), (req, res) => {
-  db.query('SELECT * FROM suppliers', (err, rs) => {
-      res.render('./supply', { newsupps: rs });
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  db.query(`      
+  SELECT t.p_name AS tenant, h.houseno, SUM(p.amount_paid) AS total_paid,(h.price - IFNULL(SUM(p.amount_paid), 0)) AS  balance_due,h.price,t.date
+  FROM products t
+  JOIN houses h ON trim(t.houseno) = trim(h.houseno)
+  LEFT JOIN payments p ON p.tenant_id = t.p_id
+  GROUP BY t.p_id`, (err, rs) => {
+     if(err) throw err;
+     const sql = 'SELECT t.p_id, t.p_name,p.payment_date as date,p.invoice, COALESCE(p.amount_paid ) as total FROM products t  JOIN  payments p ON t.p_id = p.tenant_id WHERE p.amount_paid > 0 ';
+      db.query(sql,(err,result) =>{
+        if(err) throw err;
+        res.render('./supply', { details: rs, books: result, username });
+      })
+     
   });
 });
 
 // Users Management - "viewUsers" or "manageUsers" permission
 route.get('/users', checkPermission('viewUsers'), async (req, res) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
   await db.query('SELECT * FROM dev_users', (err, rs) => {
       if (err) {
           console.log('error retrieving data');
       } else {
           db.query('SELECT * FROM d_roles', (err, result) => {
-              res.render('./users', { persons: rs, rules: result });
+              res.render('./users', { persons: rs, rules: result,username });
           });
       }
   });
@@ -223,190 +411,60 @@ route.get('/users', checkPermission('viewUsers'), async (req, res) => {
 
 // Bulk Upload - "bulkUpload" permission
 route.get('/bulk', checkPermission('configuration'), (req, res) => {
-  res.render('./file');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./file',{username});
 });
 
 // System Configuration - "configuration" permission (usually for SuperAdmin)
 route.get('/con', checkPermission('configuration'), (req, res) => {
-  res.render('./config');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./config',{username});
 });
 
 // Other system settings routes with respective permissions
-route.get('/info', checkPermission('configuration'), (req, res) => {
-  res.render('./info');
+route.get('/info',(req, res) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./info',{username});
 });
 
 route.get('/barcode', checkPermission('configuration'), (req, res) => {
-  res.render('./barcode');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./barcode',{username});
 });
 
 route.get('/localization', checkPermission('configuration'), (req, res) => {
-  res.render('./localization');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./localization',{username});
 });
 
 route.get('/invoices', checkPermission('configuration'), (req, res) => {
-  res.render('./invoices');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./invoices',{username});
 });
 
 route.get('/general', checkPermission('configuration'), (req, res) => {
-  res.render('./general');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./general',{username});
 });
 
 route.get('/receipt', checkPermission('configuration'), (req, res) => {
-  res.render('./receipt');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./receipt',{username});
 });
 
 route.get('/tableSetting', checkPermission('configuration'), (req, res) => {
-  res.render('./tableSetting');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./tableSetting',{username});
 });
 
 route.get('/taxes', checkPermission('configuration'), (req, res) => {
-  res.render('./taxes');
+  const username = req.session.user ? req.session.user.username : 'Guest';
+  res.render('./taxes',{username});
 });
 
 
 
 
-// //  admin
-// route.get('/sup',(req,res)=>{
-//   res.render('./super');
-  
-//  });
-// //  inventory management
-// route.get('/inventory',(req,res)=>{
-//   db.query('SELECT * FROM products',(err,result)=>{
-//     res.render('./invent', {addedProduct : result});
-//  });
-// })
-// //  roles and permision
-// route.get('/roles',(req,res)=>{
-//   db.query('SELECT * FROM d_roles',(err,rs)=>{
-//     res.render('./roles',{items : rs})
-// })  
-//  });
-
-//  manage-user-role
-// manage-user-role
-// route.get('/manage', (req, res, next) => {
-//   db.query('SELECT * FROM d_roles', (err, rs) => {
-//       if (err) {
-//           console.error('Error retrieving roles:', err);
-//           return res.status(500).send('Internal Server Error');
-//       }
-
-//       const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
-//       const permissionsQuery = 'SELECT permission FROM d_access WHERE department = ?';
-
-//       db.query(rolesQuery, (err, roles) => {
-//           if (err) {
-//               console.error('Error fetching roles:', err);
-//               return res.status(500).send('Internal Server Error');
-//           }
-
-//           let selectedRole = req.query.department || roles[0].role;
-
-//           db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
-//               if (err) {
-//                   console.error('Error fetching permissions:', err);
-//                   return res.status(500).send('Internal Server Error');
-//               }
-
-//               const permissions = {
-//                  'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
-//         'Manager': ['viewUsers', 'manageStock', 'editReports',  'manageSuppliers', 'manageCustomers'],
-//         'Admin': ['deleteUsers', 'updateUsers', 'AddUsers','configuration'],
-//         'SuperAdmin': ['manageSales','configuration','bulkUpload'],
-//         'Waiters': ['viewSales'],
-//         'Store Keeper': ['manageStock'],
-//         'Chefs': ['viewStock',],
-//               };
-
-//               const selectedPermissions = existingPermissions.map(perm => perm.permission);
-
-//               res.render('./manageUser_role', {
-//                   rls: rs,
-//                   permissions,
-//                   selectedRole,
-//                   selectedPermissions
-//               });
-//           });
-//       });
-//   });
-// });
-
-
-
-// // manage supply
-// route.get('/supply',(req,res)=>{
-//   db.query('SELECT * FROM suppliers',(err,rs)=>{
-//     res.render('./supply', {newsupps : rs})
-//  })  
-//  });
-
-// //  users manage
-// route.get('/users', async(req,res)=>{
-//    await db.query('SELECT * FROM dev_users',(err,rs)=>{
-//     if(err){
-//       console.log('error retrieving data');
-//     }else{
-//    db.query('SELECT * FROM d_roles',(err,result)=>{
-//     res.render('./users', {persons : rs, rules: result});
-//    })
-//     }
-   
-//    })
- 
-  
-//  });
-// //  bulk upload
-// route.get('/bulk',(req,res)=>{
-//   res.render('./file');
-  
-//  });
-//  //--------------CONFIGS OF THE SYSTEM-------------------
-//    route.get('/info',(req,res)=>{
-//   res.render('./info');
-  
-//     // res.render('./form');
-//  });
-//   route.get('/barcode',(req,res)=>{
-//   res.render('./barcode');
-  
-//     // res.render('./form');
-//  });
-//   route.get('/localization',(req,res)=>{
-//   res.render('./localization');
-  
-//     // res.render('./form');
-//  });
-//    route.get('/invoices',(req,res)=>{
-//   res.render('./invoices');
-  
-//     // res.render('./form');
-//  });
-//    route.get('/general',(req,res)=>{
-//   res.render('./general');
-  
-//     // res.render('./form');
-//  });
-//    route.get('/receipt',(req,res)=>{
-//   res.render('./receipt');
-//     // res.render('./form');
-//  });
-//    route.get('/con',(req,res)=>{
-//   res.render('./config');
-//     // res.render('./form');
-//  });
-//    route.get('/tableSetting',(req,res)=>{
-//   res.render('./tableSetting');
-  
-//     // res.render('./form');
-//  });
-//    route.get('/taxes',(req,res)=>{
-//   res.render('./taxes');
-  
-//     // res.render('./form');
-//  });
 
 // <--------- call the db function here--------->
 // ---------------------------------------------------
@@ -414,13 +472,13 @@ route.get('/taxes', checkPermission('configuration'), (req, res) => {
 route.post('/in',processRequest)
 
 // add product to the database
-route.post('/purchase',addProduct);
+route.post('/purchase',addTenant);
 
 // add product category
 route.post('/addcat',addCategory);
 
 // add suppliers
-route.post('/addsup', addsuppliers)
+route.post('/addsup', addHouses)
 
 // login
 route.post('/sign',userAuthentication);
@@ -440,6 +498,37 @@ route.get('/del',deleteProduct);
 // retrieve Products
 route.get('/change',updateStock);
 // updateproduct
-route.post('/update_product',postUpdate)
+route.post('/update_product',postUpdate);
+// post return-sale
+route.post('/return-sale', updateSoldItem);
+// delete category
+route.get('/delt',deleteCategory);
+// update category
+route.post('/update_category', updateCategory);
+//stock transfer
+route.post('/receipt_stock',stockTransfer);
+// updateuser data
+route.post('/updateuser',updateUser);
+// update supplier data
+route.post('/updsuppler', updateSuppler);
+// post company details
+route.post('/setup',companySetup);
+//adm acc
+route.post('/sudor',adminAccount);
+//activeproducts
+ route.post('/s',activatePos)
+// updater roles
+route.post('/edirole',editrole)
+
+
+
+
+
+
+
+
+
+
+
 // Export the route object
 module.exports = route;

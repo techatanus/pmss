@@ -45,8 +45,8 @@
             animation: fadeIn 1.5s ease-in-out;
         }
         
-        input[type="text"], input[type="date"] {
-            width: calc(50% 10px); /* Make the input fields side by side */
+        input[type="text"], input[type="number"] {
+            width: calc(50% - 10px); /* Make the input fields side by side */
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -121,35 +121,43 @@
 </head>
 <body>
     <div class="container">
-        <h1>Update Tenant</h1>
-        <form action="/update_product" method="POST">
-            <input type="hidden" name="p_id" value="<%= product.p_id %>">
+        <h1>Receive Stock</h1>
+        <form action="/receipt_stock" method="POST">
+            <input type="hidden" name="pid" value="<%= product.p_id %>" >
 
             <div class="form-group">
                 <label for="p_name">Product Name:</label>
-                <input type="text" id="p_name" name="p_name" value="<%= product.p_name %>">
+                <input type="text" id="p_name" name="name" value="<%= product.p_name %>" disabled>
 
                 <label for="p_category">Category:</label>
-                <input type="text" id="p_category" name="p_category" value="<%= product.p_category %>">
+                <input type="text" id="p_category" name="category" value="<%= product.p_category %>" disabled>
             </div>
 
             <div class="form-group">
-             
-                <label for="p_bp">PhoneNo:</label>
-                <input type="text" id="p_bp" name="p_bp" value="<%= product.p_bp %>">
+                <label for="p_suplier">Supplier:</label>
+                <input type="text" id="p_suplier" name="suplier" value="<%= product.p_suplier %>" disabled>
+
+                <label for="p_bp">Buying Price:</label>
+                <input type="text" id="p_bp" name="bp" value="<%= product.p_bp %>" disabled>
             </div>
 
             <div class="form-group">
-                <label for="p_sp">Email:</label>
-                <input type="text" id="p_sp" name="p_sp" value="<%= product.p_sp %>">
+                <label for="p_sp">Selling Price:</label>
+                <input type="text" id="p_sp" name="sp" value="<%= product.p_sp %>" disabled>
 
-               
+                <label for="p_wp">Wholesale Price:</label>
+                <input type="text" id="p_wp" name="wp" value="<%= product.p_wp %>" disabled>
             </div>
 
-           
-        
+            <div class="form-group">
+                <label for="p_quantity">Quantity Dispatched:</label>
+                <input type="text" id="p_quantity" name="p_quantity" value="<%= product.inquantity %>" disabled>
 
-            <button type="submit">Update tenant</button>
+                <label for="expD">Quantity received:</label>
+                <input type="number" id="expD" name="inqt" min="1">
+            </div>
+
+            <button type="submit">Receive Stock</button>
         </form>
     </div>
 

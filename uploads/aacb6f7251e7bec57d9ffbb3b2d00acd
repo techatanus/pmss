@@ -1,0 +1,5 @@
+Name,Category,Buying_Price,Selling_Price,Wholesale_Price,Quantity,Expiry_Date
+test2,wine,100,150,130,20,2032-10-21
+test3,spirit,101,151,131,21,2032-10-22
+test4,food,102,152,132,22,2032-10-23
+test5,softDrink,103,153,133,23,2032-10-24

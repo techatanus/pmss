@@ -12,7 +12,7 @@
             display: flex;
         }
         nav {
-            background-color: #4CAF50;
+            background-color: yellowgreen;
             height: 100vh;
             width: 250px;
             position: fixed;
@@ -26,10 +26,11 @@
             list-style: none;
             padding: 0;
             width: 100%;
+            
         }
         nav ul li {
             width: 100%;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         nav ul li a {
             color: white;
@@ -91,6 +92,23 @@
         .card h2 {
             color: #4CAF50;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+      
     </style>
     
 </head>
@@ -108,32 +126,51 @@
     </nav>
     <main>
         <header>
-            <h1>DEVPOS         <small style="margin-left: 150px;">Welcome <%= username %></small></h1>
-            <button><a href="/logout">Logout</a></button>
+            <h1>HouseRental        <small style="margin-left: 150px;">Welcome <%= username %></small></h1>
+                        <button><a href="/logout">Logout</a></button>
         </header>
         <section id="dashboard">
-            <h2>Dashboard Overview</h2>
+            <h2>Dashboard </h2>
             <div class="cards">
-                <div class="card">
-                    <h2>Total Sales</h2>
-                    <p>$10,000</p>
+                <div class="card" style="background-color:rgb(133, 100, 19)">
+                    <h2 style="color: white;">Total this month</h2>
+                    <p id="d">ksh <%= result.paid %></p>
                 </div>
-                <div class="card">
-                    <h2>Purchases Sold</h2>
-                    <p>500</p>
+                <div class="card" style="background-color:goldenrod;">
+                    <h2 style="color: white;">Total Tenants</h2>
+                    <p><%= result.tenants %></p>
                 </div>
-                <div class="card">
-                    <h2>New Customers</h2>
-                    <p>50</p>
+                <div class="card" style="background-color: yellowgreen;">
+                    <h2 style="color: white;">Total Houses</h2>
+                    <p><a href="/return_s">800</a></p>
+                </div>
+                <div class="card" style="background-color: rgb(105, 126, 64);">
+                    <h2 style="color: white;">Occupied Houses</h2>
+                    <p><%= result.tenants %></p>
+                </div>
+                <div class="card" style="background-color: rgb(110, 146, 25);">
+                    <h2 style="color: white;">Vacant Houses</h2>
+                    <p></p>
+                </div>
+                <div class="card" style="background-color: rgb(105, 134, 31);">
+                    <h2 style="color: white;">Rental Balance</h2>
+                    <p>ksh <%= result.balance_due %></p>
                 </div>
             </div>
+            
         </section>
     
     </main>
 
     <script>
+        let p = document.getElementById('d').innerHTML;
+  
+const formattedAmount = p.toLocaleString();
+console.log(formattedAmount); // Output: "3,455"
+       
+
         function logout() {
-            alert('Logging out...');
+            confirm('Logging out...');
             // Implement logout functionality here
             window.location.href = 'login.html';
         }

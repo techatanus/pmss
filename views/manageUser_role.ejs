@@ -14,15 +14,14 @@
 
         <!-- Permissions Rendering -->
         <% const roles = {
-              'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
-              'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
-              'Admin': ['deleteUsers', 'updateUsers'],
-              'SuperAdmin':['AddUsers', 'configuration'],
-              'Waiters': ['viewSales',],
-              'Store Keeper': ['viewStock']
-              
-              
+            'Cashier': ['collectRent', 'viewReceipts', 'generateInvoice'],
+            'Manager': ['viewTenants', 'manageProperties', 'editRentalReports', 'managePayments', 'manageContracts'],
+            'Admin': ['deleteTenants', 'updateTenants', 'updateHouses'],
+            'SuperAdmin': ['addUsers', 'configureSystem', 'viewAllReports'],
+            'Caretaker': ['viewHouses', 'updateHouseStatus'],
+            'Property Auditor': ['viewRentalBalance', 'viewOccupiedHouses', 'viewVacantHouses']
           };
+          
 
           Object.keys(roles).forEach((role) => { %>
             <div style="margin-bottom: 20px;">
@@ -52,16 +51,13 @@
 <script>
  function toggleCheckboxes(role, checked) {
     const roles = {
-             'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
-              'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
-              'Admin': ['deleteUsers', 'updateUsers'],
-              'SuperAdmin':['AddUsers', 'configuration'],
-              'Waiters': ['viewSales',],
-              'Store Keeper': ['viewStock']
-             
-           
-       
-    };
+  'Cashier': ['collectRent', 'viewReceipts', 'generateInvoice'],
+  'Manager': ['viewTenants', 'manageProperties', 'editRentalReports', 'managePayments', 'manageContracts'],
+  'Admin': ['deleteTenants', 'updateTenants', 'updateHouses'],
+  'SuperAdmin': ['addUsers', 'configureSystem', 'viewAllReports'],
+  'Caretaker': ['viewHouses', 'updateHouseStatus'],
+  'Property Auditor': ['viewRentalBalance', 'viewOccupiedHouses', 'viewVacantHouses']
+};
 
     roles[role].forEach(permission => {
         const checkbox = document.getElementById(permission);

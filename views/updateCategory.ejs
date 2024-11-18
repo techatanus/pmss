@@ -46,8 +46,8 @@
         }
         
         input[type="text"], input[type="date"] {
-            width: calc(50% 10px); /* Make the input fields side by side */
-            padding: 10px;
+            width: calc(50% - 10px); /* Make the input fields side by side */
+            padding: 5px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -104,52 +104,35 @@
         }
 
         /* Additional styling for two-column layout */
-        .form-group {
+        /* .form-group {
             display: flex;
             justify-content: space-between;
-            gap: 20px;
+            
         }
 
         .form-group > label {
             width: 48%;
-        }
+        } */
 
         .form-group > input {
             width: 48%;
+            margin: 25px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Update Tenant</h1>
-        <form action="/update_product" method="POST">
-            <input type="hidden" name="p_id" value="<%= product.p_id %>">
+        <h1>Update category</h1>
+        <form action="/update_category" method="POST">
+            <input type="hidden" name="cid" value="<%=categ.id %>">
 
             <div class="form-group">
-                <label for="p_name">Product Name:</label>
-                <input type="text" id="p_name" name="p_name" value="<%= product.p_name %>">
-
                 <label for="p_category">Category:</label>
-                <input type="text" id="p_category" name="p_category" value="<%= product.p_category %>">
+                <input type="text" id="p_category" name="category" value="<%=categ.name %>">
             </div>
 
-            <div class="form-group">
-             
-                <label for="p_bp">PhoneNo:</label>
-                <input type="text" id="p_bp" name="p_bp" value="<%= product.p_bp %>">
-            </div>
-
-            <div class="form-group">
-                <label for="p_sp">Email:</label>
-                <input type="text" id="p_sp" name="p_sp" value="<%= product.p_sp %>">
-
-               
-            </div>
-
-           
         
-
-            <button type="submit">Update tenant</button>
+            <button type="submit">Update Category</button>
         </form>
     </div>
 

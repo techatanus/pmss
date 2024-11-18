@@ -12,10 +12,17 @@ const addUseRole = async(req,res,next)=>{
          }else{
             db.query('INSERT INTO d_roles(role,descp,dept) VALUES(?,?,?)',[name,description,department],(err,rs)=>{
                  if(err) throw err;
-            db.query('SELECT * FROM d_roles',(err,rs)=>{
-                res.render('./roles',{items : rs})
-            })
-                res.send('<script>alert("role inserted successful")</script>');
+            // db.query('SELECT * FROM d_roles',(err,rs)=>{
+            //     res.render('./roles',{items : rs})
+            // })
+             res.send(`
+             
+             <script>
+             alert("role inseted successfl");
+             window.location.href = '/roles';
+             
+             </script>
+             `)
     
              })
          }

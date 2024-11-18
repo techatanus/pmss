@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEVPOS - Supplier Management</title>
+    <title>PMS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
             display: flex;
         }
         nav {
-            background-color: #4CAF50;
+            background-color: yellowgreen;
             height: 100vh;
             width: 250px;
             position: fixed;
@@ -190,40 +190,42 @@
     </nav>
     <main>
         <header>
-            <h1>DEVPOS - Supplier Management</h1>
+            <h1>List of payments</h1>
             <button onclick="logout()">Logout</button>
         </header>
         <section>
             <!-- Supplier Overview Card -->
             <div class="card">
-                <h3>Suppliers</h3>
+                <h3>Payments</h3>
                 <div class="actions">
-                    <button class="add" onclick="openSupplierModal()">Add Supplier</button>
+                    <button class="add" onclick="openSupplierModal()">New Entry</button>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>Supplier ID</th>
-                            <th>Supplier Name</th>
-                            <th>Contact</th>
-                            <th>Phone</th>
-                            <th>Email</th>
+                            <th>Date</th>
+                            <th>Tenant</th>
+                            <th>Invoice</th>
+                            <th>Amount</th>
+                            <!-- <th>Phone</th>
+                            <th>Email</th> -->
+                          
                             <th colspan="2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Example Supplier Row -->
-                        <%newsupps.forEach((nsp)=>{ %>
+                        <%books.forEach((product)=>{ %>
                             <tr>
-                                <td><%=nsp.s_id %>-QWR</td>
-                                <td><%=nsp.s_name %></td>
-                                <td><%=nsp.s_contact%></td>
-                                <td><%=nsp.s_phone %></td>
-                                <td><%=nsp.s_email %></td>
-                                <td><a href="/view?id=<%=nsp.p_id %>">View</a></td>
-                                <td><a href="/change?id=<%=nsp.p_id %>">update</a></td>
+                                <td>  <%= product.date %></td>
+                                <td><%=product.p_name %></td>
+                                <td><%=product.invoice %></td>
+                                <td><%=product.total%></td>
+                               
+                                <td><a href="/delsup?id=<%= product.id %>" onclick="confirm('are you sure you want to delete this record')">delete</a></td>
+                                <td><a href="/updatesup?id=<%= product.id %>" onclick="confirm('sure you want to update the details')">Edit</a></td>
                             </tr>
-                        <% }) %>
+                            <%  }) %>
                         <!-- Additional rows would be added here -->
                     </tbody>
                 </table>
@@ -233,39 +235,70 @@
         <!-- Supplier Modal -->
         <div id="supplierModal" class="modal">
             <div class="modal-content">
-                <h2 id="modalTitle">Add Supplier</h2>
-                  <form action="/addsup" method="post" id="myForm">
-                    <!-- <div class="form-group">
-                        <label for="supplierId">Supplier ID</label>
-                        <input type="text" id="supplierId" placeholder="Enter supplier ID">
-                    </div> -->
-                    <div class="form-group">
-                        <label for="supplierName">Supplier Name</label>
-                        <input type="text" name="name" id="supplierName" placeholder="Enter supplier name">
-                    </div>
-                    <div class="form-group">
-                        <label for="contact">Contact</label>
-                        <input type="text" name="contact" id="contact" placeholder="Enter contact person">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="text" name="phone" id="phone" placeholder="Enter phone number">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" name="email" id="email" placeholder="Enter email address">
-                    </div>
-                    <div class="actions">
-                        <button class="save" onclick="saveSupplier()">Save</button>
-                       
-                    </div>
-                  </form>
-             
-                <button class="cancel" onclick="closeSupplierModal()">Cancel</button>
+              <h2 id="modalTitle">Add Payment</h2>
+              <form action="/pay" method="post" id="myForm">
+                <!-- Tenant Dropdown -->
+                <div class="form-group">
+                  <label for="productName">Tenant</label>
+                  <select name="category" id="productName" onchange="populateDetails()">
+                    <option value=""></option>
+                    <% details.forEach((item) => { %>
+                      <option value="<%= item.tenant %>" 
+                        data-houseno="<%= item.houseno %>"
+                        data-price="<%= item.price %>" 
+                        data-paid="<%= item.total_paid %>"
+                        data-balance="<%= item.balance_due %>"
+                        data-date="<%= item.date %>"> 
+                        <%= item.tenant %>
+                      </option>
+                    <% }) %>
+                  </select>
+                </div>
+          
+                <!-- Invoice Auto-generated -->
+                <div class="form-group">
+                  <label for="invoice">Invoice</label>
+                  <input type="text" name="invoice" id="invoice" placeholder="Invoice" readonly>
+                </div>
+          
+                <!-- Tenant Details (dynamically populated) -->
+                <div class="form-group">
+                  <div id="tenantDetails" style="display:none;">
+                    <label for="details">Details</label>
+                    <small>
+                      
+                        Tenant: <b><span id="tenantName"></span><br></b>
+                        Monthly Rental Rate:<b> <span id="rentalRate"></span><br></b>
+                        Outstanding Balance: <b><span id="balance"></span><br></b>
+                        Total Paid:<b> <span id="totalPaid"></span><br></b>
+                        Rent Started:<b> <span id="rentStarted"></span></b><br>
+                        House no:<b> <span id="houseno"></span></b>
+                      
+                    </small>
+                  </div>
+                </div>
+          
+                <!-- Amount Input -->
+                <div class="form-group">
+                  <label for="amount">Amount</label>
+                  <input type="number" name="amount" id="amount" placeholder="Amount">
+                </div>
+          
+                <!-- Actions -->
+                <div class="actions">
+                  <button type="submit" class="save" >Save</button>
+                </div>
+              </form>
+          
+              <button class="cancel" onclick="closeSupplierModal()">Cancel</button>
             </div>
-        </div>
+          </div>
+          
+  
+       
+
     </main>
-<script src="/vendors/Validatesupply.js"></script>
+<!-- <script src="/vendors/Validatesupply.js"></script> -->
     <script>
         function openSupplierModal(supplierId) {
             // Fill in the modal fields with supplier data if editing
@@ -273,7 +306,7 @@
                 document.getElementById('modalTitle').innerText = 'Edit Supplier';
                 // Fetch and populate supplier data here
             } else {
-                document.getElementById('modalTitle').innerText = 'Add Supplier';
+                document.getElementById('modalTitle').innerText = 'Add payment';
                 // Clear modal fields for new entry
             }
             document.getElementById('supplierModal').style.display = 'flex';
@@ -283,8 +316,43 @@
             document.getElementById('supplierModal').style.display = 'none';
         }
 
+       
+           
+ // Auto-generate invoice number
+ function generateInvoiceNumber() {
+    const randomPart = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+    const invoiceNumber = `INV${randomPart}ACG`;
+    document.getElementById('invoice').value = invoiceNumber;
+  }
 
-      
+  // Populate tenant details based on selection and generate a new invoice number
+  function populateDetails() {
+    const tenantSelect = document.getElementById('productName');
+    const selectedOption = tenantSelect.options[tenantSelect.selectedIndex];
+    
+    const tenantName = selectedOption.value;
+    const houseno = selectedOption.getAttribute('data-houseno');
+    const price = selectedOption.getAttribute('data-price');
+    const balance = selectedOption.getAttribute('data-balance');  // You can calculate the balance dynamically if needed
+    const totalPaid = selectedOption.getAttribute('data-paid');  // Fetch this from the backend if needed
+    const rentStarted = selectedOption.getAttribute('data-date');  // Fetch this from backend if needed
+
+    // Display tenant details if tenant is selected
+    if (tenantName) {
+      document.getElementById('tenantDetails').style.display = 'block';
+      document.getElementById('tenantName').innerText = tenantName;
+      document.getElementById('rentalRate').innerText = price;
+      document.getElementById('balance').innerText = balance;
+      document.getElementById('totalPaid').innerText = totalPaid;
+      document.getElementById('rentStarted').innerText = rentStarted;
+      document.getElementById('houseno').innerText = houseno;
+      // Generate a new invoice number whenever a new tenant is selected
+      generateInvoiceNumber();
+    } else {
+      document.getElementById('tenantDetails').style.display = 'none';
+    }
+  }
+
     </script>
 </body>
 </html>

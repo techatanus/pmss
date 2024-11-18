@@ -12,7 +12,7 @@
             display: flex;
         }
         nav {
-            background-color: #4CAF50;
+            background-color: yellowgreen;
             height: 100vh;
             width: 250px;
             position: fixed;
@@ -77,7 +77,7 @@
         .user-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 25px;
         }
         .user-card {
             background-color: white;
@@ -190,11 +190,11 @@
             <div class="user-card">
                 <h2><%=person.u_name %>  - <small id="status">online</small></h2>
                 <p><strong>Role:</strong> <%=person.u_role %></p>
-                <p><strong>Email:</strong><%=person.u_email %></p>
-                <p><strong>Date created:</strong><%=person.u_date%></p>
+              
+              
                 <div class="actions">
-                    <button class="edit" onclick="editUser('Jane Smith')">Edit</button>
-                    <button class="delete" onclick="deleteUser('Jane Smith')">Delete</button>
+                    <button class="edit" onclick="confirm('sure you want to update the record')"><a href="/upd?id=<%=person.u_id%>">update</a></button>
+                    <button class="delete" onclick="confirm('sure to delete these record')"><a href="/deluser?id=<%=person.u_id%>">delete</a> </button>
                 </div>
             </div>
          <%  }) %>
@@ -218,8 +218,9 @@
                             <label for="userEmail">Email</label>
                             <input type="email" id="userEmail" name="email" required>
                         </div>
+                       
                         <div class="form-group">
-                            <label for="userRole">Role</label>
+                            <label for="userRole">User Type</label>
                             <select id="userRole" name="role">
                                
                               <% rules.forEach((rule)=>{ %>
@@ -245,32 +246,12 @@
     document.getElementById('userModal').style.display = 'flex';
 }
 
-function editUser(user) {
-    document.getElementById('modalTitle').innerText = 'Edit User';
-    
-    // Populate the form with user details
-    document.getElementById('userName').value = user.u_name;
-    document.getElementById('userEmail').value = user.u_email;
-    document.getElementById('userRole').value = user.u_role;
-    
-    document.getElementById('userModal').style.display = 'flex';
-}
+
 
 function closeModal() {
     document.getElementById('userModal').style.display = 'none';
 }
 
-// Add event listeners to each edit button
-document.querySelectorAll('.edit').forEach((button, index) => {
-    button.addEventListener('click', () => {
-        const user = {
-            u_name: button.closest('.user-card').querySelector('h2').innerText.split(' - ')[0],
-            u_role: button.closest('.user-card').querySelector('p:nth-child(2) strong').nextSibling.textContent.trim(),
-            u_email: button.closest('.user-card').querySelector('p:nth-child(3) strong').nextSibling.textContent.trim()
-        };
-        editUser(user);
-    });
-});
 
     </script>
 </body>

@@ -12,7 +12,7 @@
             display: flex;
         }
         nav {
-            background-color: #4CAF50;
+            background-color:yellowgreen;
             height: 100vh;
             width: 250px;
             position: fixed;
@@ -114,6 +114,7 @@
             color: white;
         }
     </style>
+    <script src="/controllers/reports/rep.js"></script>
 </head>
 <body>
     <nav>
@@ -122,33 +123,33 @@
     <main>
         <header>
             <h1>DEVPOS - Reports</h1>
-            <button onclick="logout()">Logout</button>
+            <!-- <button onclick="logout()">Logout</button> -->
         </header>
         <section>
          <p>From  <input type="date" name="startD" style="margin: 30px;">  to  <input type="date" name="endD" style="margin: 30px;"></p>
-            <div class="report-type">
-                <button onclick="showReport('dailySales')">Daily Sales</button>
-                <button onclick="showReport('paymentMode')" id="mp">Mode of Payment</button>
+         
+         <div class="report-type">
+                <button onclick="showReport('monthlyRental')">monthlyRental Report</button>
+                <button onclick="showReport('rentalBalance')" id="mp">rentalBalance Report</button>
                
-                <button onclick="showReport('stockRemaining')">Remaining Stock</button>
-                <button onclick="showReport('stockSold')">Sold Stock</button>
-                <button onclick="showReport('department')">Department</button>
-                <button onclick="showReport('otherReports')">Other Reports</button>
+                <button onclick="showReport('vacantHouses')">vacantHouses</button>
+                <button onclick="showReport('totalPaymentsByTenant')">totalPaymentsByTenant</button>
+                <button onclick="showReport('paymentHistory')">paymentHistory</button>
+                <!-- <button onclick="showReport('otherReports')">Other Reports</button> -->
                  <button onclick="printReport()">Print Report</button>
-    <button onclick="downloadReport()">Download Report</button>
+             <button onclick="downloadReport()">Download Report</button>
             </div>
-            <div id="dailySales" class="report-content">
-                <h2>Daily Sales Report</h2>
+            <div id="monthlyRental" class="report-content">
+                <h2>monthlyRental Report</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Sale ID</th>
-                            <th>paymentMode</th>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                            <th>Date</th>
+                            <th>Tenant</th>
+                           
+                            <th>Houseno</th>
+                            <th>TotalRent</th>
+                            <th>Month</th>
+                            <!-- <th>Date</th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -156,15 +157,17 @@
                     </tbody>
                 </table>
             </div>
-            <div id="paymentMode" class="report-content">
-                <h2>Mode of Payment Report</h2>
+            <div id="rentalBalance" class="report-content">
+                <h2>rentalBalance Report</h2>
                 <table>
                     <thead>
                         <tr>
-                         <th>Transaction ID</th>
-                            <th>Payment Mode</th>
-                            <th>Amount</th>
+                            <th>Tenant</th>
+                            <th>HouseNo</th>
+                            <th>Category</th>
+                            <th>Balance_due</th>
                             <th>Date</th>
+                         
                         </tr>
                     </thead>
                     <tbody>
@@ -172,33 +175,33 @@
                     </tbody>
                 </table>
             </div>
-            <div id="department" class="report-content">
-                <h2>Department Report</h2>
+            <div id="vacantHouses" class="report-content">
+                <h2>vacantHouses Report</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Department</th>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                            <th>Date</th>
+                            <th>Houseno</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                           
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Department sales data goes here -->
+                        <!-- vacantHouses sales data goes here -->
                     </tbody>
                 </table>
             </div>
-            <div id="stockRemaining" class="report-content">
-                <h2>Remaining Stock Report</h2>
+            <div id="totalPaymentsByTenant" class="report-content">
+                <h2>totalPaymentsByTenant Report</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Quantity Remaining</th>
-                            <th>Last Restocked</th>
+                            <th>Tenant</th>
+                            <th>HouseNo</th>
+                            <th>TotalPaid</th>
+                            <th>Balance_due</th>
+        
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -206,15 +209,15 @@
                     </tbody>
                 </table>
             </div>
-            <div id="stockSold" class="report-content">
-                <h2>Sold Stock Report</h2>
+            <div id="paymentHistory" class="report-content">
+                <h2>paymentHistory Report</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Quantity Sold</th>
-                            <th>Date Sold</th>
+                            <th>Tenant</th>
+                            <th>HouseNo</th>
+                            <th>Amount_paid</th>
+                            <th>Payment_date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -224,7 +227,8 @@
             </div>
             <div id="otherReports" class="report-content">
                 <h2>Other Reports</h2>
-                <p>Additional reports can be added here.</p>
+                <p><a href="/sup">Graphical Reports</a></p>
+                <p><a href="#">Accounting Reports</a></p>
             </div>
         </section>
     </main>
@@ -247,59 +251,58 @@
             const tbody = document.querySelector(`#${reportId} tbody`);
             tbody.innerHTML = '';
 
-            if (reportId === 'dailySales') {
+            if (reportId === 'monthlyRental') {
                 data.forEach(row => {
                     tbody.innerHTML += `
                         <tr>
-                            <td>${row.sale_id}</td>
-                            <td>${row.payment_mode}</td>
-                            <td>${row.product}</td>
-                            <td>${row.quantity}</td>
-                            <td>${row.price}</td>
-                            <td>${row.total}</td>
-                            <td>${row.date}</td>
-                        </tr>`;
-                });
-            } else if (reportId === 'paymentMode') {
-                data.forEach(row => {
-                    tbody.innerHTML += `
-                        <tr>
-                        <td>${row.transaction_id}</td>
-                            <td>${row.payment_mode}</td>
-                            <td>${row.amount}</td>
-                            <td>${row.date}</td>
-                        </tr>`;
-                });
-            } else if (reportId === 'department') {
-                data.forEach(row => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${row.department}</td>
-                            <td>${row.product}</td>
-                            <td>${row.quantity}</td>
-                            <td>${row.price}</td>
-                            <td>${row.total}</td>
-                            <td>${row.date}</td>
-                        </tr>`;
-                });
-            } else if (reportId === 'stockRemaining') {
-                data.forEach(row => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${row.product}</td>
+                            <td>${row.tenant}</td>
+                            
                             <td>${row.category}</td>
-                            <td>${row.quantity_remaining}</td>
-                            <td>${row.last_restocked}</td>
+                            <td>${row.amount_paid}</td>
+                            <td>${row.month}</td>
+                     
                         </tr>`;
                 });
-            } else if (reportId === 'stockSold') {
+            } else if (reportId === 'rentalBalance') {
                 data.forEach(row => {
                     tbody.innerHTML += `
                         <tr>
-                            <td>${row.product}</td>
+                            <td>${row.tenant}</td>
+                            <td>${row.houseno}</td>
                             <td>${row.category}</td>
-                            <td>${row.quantity_sold}</td>
-                            <td>${row.date_sold}</td>
+                            <td>${row.balance_due}</td>
+                            <td>${row.date}</td>
+                        </tr>`;
+                });
+            } else if (reportId === 'vacantHouses') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.houseno}</td>
+                            <td>${row.category}</td>
+                            <td>${row.description}</td>
+                          
+                        </tr>`;
+                });
+            } else if (reportId === 'totalPaymentsByTenant') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.tenant}</td>
+                            <td>${row.houseno}</td>
+                            <td>${row.total_paid}</td>
+                            <td>${row.balance}</td>
+                          
+                        </tr>`;
+                });
+            } else if (reportId === 'paymentHistory') {
+                data.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.tenant}</td>
+                            <td>${row.houseno}</td>
+                            <td>${row.amount_paid.toLocaleString()}</td>
+                            <td>${row.payment_date}</td>
                         </tr>`;
                 });
             }
@@ -307,19 +310,36 @@
         .catch(error => console.error('Error fetching report data:', error));
 }
 
-       // function showReport(reportId) {
-         //   const reports = document.querySelectorAll('.report-content');
-         //   reports.forEach(report => {
-          //      report.classList.remove('active');
-          //  });
-          //  document.getElementById(reportId).classList.add('active');
-      //  }
+function showReport(reportId) {
+    const reports = document.querySelectorAll('.report-content');
+    reports.forEach(report => {
+        report.classList.remove('active');
+    });
+    document.getElementById(reportId).classList.add('active');
 
-      //  function logout() {
-            // Add your logout functionality here
-      //  }
-      
-      
+    const startDate = document.querySelector('input[name="startD"]').value;
+    const endDate = document.querySelector('input[name="endD"]').value;
+
+    // Fetch report data with date range filter
+    fetch(`/report?startDate=${startDate}&endDate=${endDate}&type=${reportId}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector(`#${reportId} tbody`);
+            tbody.innerHTML = ''; // Clear previous table rows
+
+            data.forEach(row => {
+                let rowHTML = '<tr>';
+                for (const [key, value] of Object.entries(row)) {
+                    rowHTML += `<td>${value}</td>`;
+                }
+                rowHTML += '</tr>';
+                tbody.innerHTML += rowHTML;
+            });
+        })
+        .catch(error => console.error('Error fetching report data:', error));
+}
+
+    
       document.getElementById('printReceiptBtn').addEventListener('click', function() {
     generateReceipt();
     printReceipt();
@@ -441,5 +461,7 @@ function downloadReport() {
 
 
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
 </body>
 </html>

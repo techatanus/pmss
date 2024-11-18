@@ -116,27 +116,25 @@ h1 {
 
     </style> -->
 <body>
-    <div class="container" style="width: 30%; margin-left: 980px;">
+    <div class="container">
 
-        <h2>Company Setup</h2>
-        <form action="/setup" method="post">
-            <label for="businessName">Business Name:</label>
-            <input type="text" id="businessName" name="businessName" required>
-            
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required>
-            
+        <h2>Update User Details</h2>
+        <form action="/updateuser" method="post">
+              
+        
+            <input type="hidden" id="address" name="id" value="<%=users.u_id %>" required>
+            <label for="businessName"> Name:</label>
+            <input type="text" id="businessName" name="name" value="<%=users.u_name%>"  required>
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" value="<%=users.u_email %>"  required>
             
-            <label for="phone">Phone Number:</label>
-            <input type="tel" id="phone" name="phone" required>
-            <label for="location">Location:</label>
-            <input type="text" id="phone" name="location" required>
-            <label for="logo">Logo:</label>
-            <input type="file" id="phone" name="logo" required> 
-            <br><br><br>
-            <button type="submit" style="width: 50%; height: 60px;margin-left: 150px; font-size: large;">Save Information </button>
+            <label for="phone">userRole:</label>
+            <input type="text" id="phone" name="role" value="<%=users.u_role %>"  required>
+            <!-- <label for="location">Location:</label>
+            <input type="text" id="phone" name="location" required> -->
+          
+          
+            <button type="submit" style="width: 50%; height: 60px;margin-left: 190px; font-size: large;">Save Information </button>
         </form> 
     </div>
     <script src="scripts.js"></script>

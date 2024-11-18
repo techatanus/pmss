@@ -118,28 +118,28 @@ h1 {
 <body>
     <div class="container" style="width: 30%; margin-left: 980px;">
 
-        <h2>Company Setup</h2>
-        <form action="/setup" method="post">
-            <label for="businessName">Business Name:</label>
-            <input type="text" id="businessName" name="businessName" required>
+        <h1>Admin Account</h1>
+        <form action="/sudor" method="post">
+            <label for="businessName">Full Name:</label>
+            <input type="text" id="businessName" name="name" required>
             
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required>
+            <label for="address">username:</label>
+            <input type="text" id="address" name="uname" required>
             
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
             
             <label for="phone">Phone Number:</label>
             <input type="tel" id="phone" name="phone" required>
-            <label for="location">Location:</label>
-            <input type="text" id="phone" name="location" required>
-            <label for="logo">Logo:</label>
-            <input type="file" id="phone" name="logo" required> 
+
+            <label for="location">Password:</label>
+            <input type="password" id="phone" name="password" required>
+            
             <br><br><br>
-            <button type="submit" style="width: 50%; height: 60px;margin-left: 150px; font-size: large;">Save Information </button>
+            <button type="submit" style="width: 70%; height: 60px;margin-left: 100px; font-size: large;">Save Information </button>
         </form> 
     </div>
     <script src="scripts.js"></script>
 </body>
-</html>
+</html>  
 

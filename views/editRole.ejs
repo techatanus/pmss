@@ -1,0 +1,105 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eitroles</title>
+    <style>
+     
+       .modal{
+        margin-top: 40px;
+       }
+  
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            margin-left: 30%;
+        }
+        .modal-content h2 {
+            margin-top: 40;
+          
+
+        }
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+        .modal-content .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .modal-content .form-group input, .modal-content .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-content .actions {
+            text-align: right;
+        }
+        .modal-content .actions button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .modal-content .actions button.save {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .modal-content .actions button.cancel {
+            background-color: #f44336;
+            color: white;
+        }
+        .modal-content .actions button.save:hover {
+            background-color: #45a049;
+        }
+        .modal-content .actions button.cancel:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    
+
+       <!-- Role Modal -->
+       <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Edit Role</h2>
+     <form action="/edirole" method="post">
+                <div class="form-group">
+                <!-- <label for="roleId">Role ID</label> -->
+                <input type="hidden" id="roleId" name="id"  value="<%=users.id %>"  placeholder="Enter role ID">
+            </div>
+            <div class="form-group">
+                <label for="roleName">Role Name</label>
+                <input type="text" id="roleName" name="name" value="<%=users.role %>" placeholder="Enter role name">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" value="<%=users.descp %>" placeholder="Enter role description">
+            </div>
+            <div class="form-group">
+                <label for="permissions" >Department</label>
+                <select id="permissions" name="department"  >
+                    <option value="<%=users.dept %>"><%=users.dept %></option>
+                    <option value="adminstration">Adminstration</option>
+                    <option value="revenue">Revenue</option>
+                    <option value="casual">Casual</option>
+                    <option value="records">Records</option>
+                    <option value="managerial">Managerial</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button class="save" onclick="saveRole()">Save</button>
+              
+            </div>
+     </form>
+            <button class="cancel" onclick="closeRoleModal()">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>

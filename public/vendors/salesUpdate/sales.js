@@ -34,8 +34,10 @@ $(document).ready(function () {
                      $('#suggestions').empty();
                      data.forEach(product => {
                          $('#suggestions').append(`
-                             <a href="#" class="list-group-item list-group-item-action" data-id="${product.p_id}" data-name="${product.p_name}" data-bp="${product.p_bp}" data-sp="${product.p_sp}" data-wp="${product.p_wp}">
-                                 ${product.p_name} - Price: ${product.p_sp}
+                        
+                             <a href="#" class="list-group-item list-group-item-action" data-id="${product.p_id}" data-name="${product.p_name}" data-bp="${product.p_bp}" data-sp="${product.p_sp}" data-wp="${product.p_wp}" data-quantity="${product.p_quantity}">
+                                 ${product.p_name} - Price: ${product.p_sp} -quantity: ${product.p_quantity}
+                                 
                              </a>
                          `);
                      });
@@ -94,7 +96,7 @@ $(document).ready(function () {
                              <option value="20" ${item.discount == 20 ? 'selected' : ''}>x20</option>
                          </select>
                      </td-->
-                     <td class="total">ksh ${totalPrice.toFixed(2)}</td>
+                     <td class="total">${totalPrice.toFixed(2)}</td>
                  </tr>
              `);
          });
@@ -143,7 +145,7 @@ $(document).ready(function () {
          items.forEach(item => {
              totalPayment += calculateTotalPrice(item.sp, item.quantity, item.discount);
          });
-         $('#paymentValue').val(`ksh ${totalPayment.toFixed(2)}`);
+         $('#paymentValue').val(`${totalPayment.toFixed(2)}`);
      }
 
         // Event listener for canceling the receipt
@@ -154,5 +156,7 @@ $(document).ready(function () {
                 renderCartItems(cartItems);
             }
         });
+
+
  });
  

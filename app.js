@@ -16,6 +16,7 @@ const CryptoJS = require('crypto-js');
 // Import your pages route
 const route = require('./routes/pages');
 const db = require('./util/db');
+const { log } = require('console');
 
 
 // Use the pages route
@@ -91,7 +92,7 @@ app.get('/search-products', (req, res) => {
     console.log('Search Term:', searchTerm);
 
     const query = `
-        SELECT p_id, p_name, p_bp, p_sp, p_wp
+        SELECT p_id, p_name, p_bp, p_sp, p_wp,p_quantity
         FROM products
         WHERE p_name LIKE ? LIMIT 10`;
 
@@ -105,6 +106,8 @@ app.get('/search-products', (req, res) => {
         res.json(results);
     });
 });
+
+
 
 // sales submission
 // Route to handle form submission
@@ -125,61 +128,85 @@ app.post('/submit-sale', (req, res) => {
         }
     }
 
-    // Save the sale to the database
-    const saleQuery = 'INSERT INTO dev_sales (comment, payment_type, payment_value) VALUES (?, ?, ?)';
-    db.query(saleQuery, [comment, paymentType, paymentValue], (err, result) => {
-        if (err) {
-            console.error('Error inserting sale:', err);
-            return res.status(500).send('Error inserting sale');
-        }
+    // Check if cartItems array is empty
+    if (cartItems.length === 0) {
+        return res.status(400).send('No sales items to insert.');
+    }
 
-        const saleId = result.insertId;
-
-        // Prepare sales items data for insertion
-        const salesItemsData = cartItems.map(item => [saleId, item.id, item.quantity, item.sp]);
-        if (salesItemsData.length === 0) {
-            return res.status(400).send('No sales items to insert.');
-        }
-
-        // Insert cart items into the sales_items table
-        const salesItemsQuery = 'INSERT INTO sales_items (sale_id, product_id, quantity, price) VALUES ?';
-        db.query(salesItemsQuery, [salesItemsData], (err) => {
-            if (err) {
-                console.error('Error inserting sales items:', err);
-                return res.status(500).send('Error inserting sales items');
-            }
-
-            // Update the p_quantity in the products table
-            const updateProductQueries = cartItems.map(item => {
-                return new Promise((resolve, reject) => {
-                    const updateQuery = 'UPDATE products SET p_quantity = p_quantity - ? WHERE p_id = ?';
-                    db.query(updateQuery, [item.quantity, item.id], (err) => {
-                        if (err) {
-                            console.error('Error updating product quantity:', err);
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
-                });
+    // Check product quantities before proceeding with the sale
+    const checkQuantityPromises = cartItems.map(item => {
+        return new Promise((resolve, reject) => {
+            const checkProductQuery = 'SELECT p_quantity FROM products WHERE p_id = ?';
+            db.query(checkProductQuery, [item.id], (err, results) => {
+                if (err) {
+                    return reject(err);
+                }
+                const product = results[0];
+                if (!product || product.p_quantity < item.quantity) {
+                    return resolve({ isAvailable: false, productId: item.id });
+                }
+                resolve({ isAvailable: true });
             });
-
-            // Execute all update queries in parallel
-            Promise.all(updateProductQueries)
-                .then(() => {
-                    res.send(`
-                        <script>
-                            alert("Sale and items successfully recorded");
-                            window.location.href = '/sales';
-                        </script>
-                    `);
-                })
-                .catch((err) => {
-                    res.status(500).send('Error updating product quantities');
-                });
         });
     });
+
+    Promise.all(checkQuantityPromises)
+        .then(availabilityResults => {
+            const unavailableProducts = availabilityResults.filter(result => !result.isAvailable);
+
+            if (unavailableProducts.length > 0) {
+                return res.status(400).send(`<script>alert("Some products are out of stock or have insufficient quantity. Please review your cart.")</script>`);
+            }
+
+            // Save the sale to the database
+            const saleQuery = 'INSERT INTO dev_sales (comment, payment_type, payment_value) VALUES (?, ?, ?)';
+            db.query(saleQuery, [comment, paymentType, paymentValue], (err, result) => {
+                console.log(paymentValue);
+                if (err) {
+                    console.error('Error inserting sale:', err);
+                    return res.status(500).send('Error inserting sale');
+                }
+
+                const saleId = result.insertId;
+
+                // Prepare sales items data for insertion
+                const salesItemsData = cartItems.map(item => [saleId, item.id, item.quantity, item.sp]);
+             console.log(salesItemsData);
+                // Insert cart items into the sales_items table
+                const salesItemsQuery = 'INSERT INTO sales_items (sale_id, product_id, quantity, price) VALUES ?';
+                db.query(salesItemsQuery, [salesItemsData], (err) => {
+                    if (err) {
+                        console.error('Error inserting sales items:', err);
+                        return res.status(500).send('Error inserting sales items');
+                    }
+
+                    // Update the product quantities in the products table
+                    cartItems.forEach(item => {
+                        const updateProductQuery = 'UPDATE products SET p_quantity = p_quantity - ? WHERE p_id = ?';
+                        db.query(updateProductQuery, [item.quantity, item.id], (err) => {
+                            if (err) {
+                                console.error('Error updating product quantity:', err);
+                                return res.status(500).send('Error updating product quantity');
+                            }
+                        });
+                    });
+
+                  res.send(`
+         <script>
+         alert("Sale and items successfully recorded");
+             window.location.href = '/sales';
+              </script>
+     `);
+
+                });
+            });
+        })
+        .catch(err => {
+            console.error('Error checking product availability:', err);
+            res.status(500).send('Error checking product availability');
+        });
 });
+
 
 //reports
 //WHERE s.date BETWEEN ? AND ?
@@ -188,43 +215,46 @@ app.get('/report', (req, res) => {
 
     let query = '';
     switch (type) {
-        case 'dailySales':
+        case 'monthlyRental':
             query = `
-                SELECT si.sale_id, p.p_name AS product, si.quantity, si.price, 
-                       (si.quantity * si.price) AS total,s.payment_type AS payment_mode, s.date  
-                FROM sales_items si
-                JOIN products p ON si.product_id = p.p_id
-                JOIN dev_sales s ON si.sale_id = s.id
-                ;
+            SELECT t.p_name AS tenant,  t.houseno,SUM(p.amount_paid) AS total_rent , MONTH(p.payment_date) AS month
+            FROM payments p
+            JOIN products t ON p.tenant_id = t.p_id
+             GROUP BY t.p_name, month
             `;
             break;
-        case 'paymentMode':
+        case 'rentalBalance':
             query = `
-                SELECT s.payment_type AS payment_mode, s.id AS transaction_id, 
-                       s.payment_value AS amount, s.date
-                FROM dev_sales s
-               ;
+            SELECT t.p_name AS tenant, h.houseno,h.category,(h.price - IFNULL(SUM(p.amount_paid), 0)) AS  balance_due,t.date
+            FROM products t
+            JOIN houses h ON trim(t.houseno) = trim(h.houseno)
+            LEFT JOIN payments p ON p.tenant_id = t.p_id
+            GROUP BY t.p_id
             `;
             break;
-        case 'stockRemaining':
+        case 'vacantHouses':
             query = `
-                SELECT p.p_name AS product, p.p_category AS category, 
-                       p.p_quantity AS quantity_remaining, p.date AS last_restocked
-                FROM products p
-                JOIN p_categories c ON p.p_category = c.name
-                
+            SELECT h.houseno, h.category, h.description
+            FROM houses h
+            LEFT JOIN products t ON h.houseno = t.houseno
+            WHERE h.status  < 1;
             `;
             break;
-        case 'stockSold':
+        case 'totalPaymentsByTenant':
             query = `
-                SELECT p.p_name AS product, c.name AS category, 
-                       SUM(si.quantity) AS quantity_sold, s.date AS date_sold
-                FROM sales_items si
-                JOIN products p ON si.product_id = p.p_id
-                JOIN p_categories c ON p.p_category = c.name
-                JOIN dev_sales s ON si.sale_id = s.id
-                
-                GROUP BY p.p_name, c.name, s.date;
+            SELECT t.p_name AS tenant, h.houseno, COALESCE(SUM(p.amount_paid),0) AS total_paid,(h.price - IFNULL(SUM(p.amount_paid), 0)) AS                  balance_due
+            FROM houses h
+            JOIN products t ON trim(h.houseno) = trim(t.houseno)
+           LEFT JOIN payments p ON p.tenant_id = t.p_id
+              GROUP BY t.p_name
+            `;
+            break;
+        case 'paymentHistory':
+            query = `
+            SELECT t.p_name AS tenant, h.houseno, p.amount_paid, p.payment_date
+            FROM houses h
+            JOIN products t ON trim(h.houseno) = trim(t.houseno)
+            JOIN payments p ON p.tenant_id = t.p_id;
             `;
             break;
         default:
@@ -232,7 +262,9 @@ app.get('/report', (req, res) => {
             return;
     }
 
-    db.query(query, [startDate, endDate], (err, results) => {
+    const queryParams = type === 'paymentHistory' ? [startDate] : [startDate, endDate];
+
+    db.query(query, queryParams, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             res.status(500).send('Internal server error');
@@ -241,6 +273,71 @@ app.get('/report', (req, res) => {
         res.json(results);
     });
 });
+
+// handle rent payments
+app.post('/pay', (req, res) => {
+    const { category,invoice, amount } = req.body; // Assuming category holds tenant name and amount holds the payment amount
+
+    // Fetch the tenant's details, including the rental rate and total paid (even if no payments exist)
+    const tenantQuery = `
+    SELECT t.p_id, t.p_name, h.houseno, h.price AS rental_rate, 
+    COALESCE(SUM(p.amount_paid), 0) AS total_paid
+FROM products t
+JOIN houses h ON TRIM(t.houseno) = TRIM(h.houseno)
+LEFT JOIN payments p ON t.p_id = p.tenant_id
+WHERE t.p_name = ?
+
+        GROUP BY t.p_id, h.houseno;
+    `;
+
+    db.query(tenantQuery, [category], (err, tenantResult) => {
+        if (err) {
+            console.error('Error fetching tenant details:', err);
+            res.status(500).send('Internal server error');
+            return;
+        }
+
+        // Ensure we got a tenant record, even if no payments have been made yet
+        if (tenantResult.length === 0) {
+            res.status(400).send('Tenant not found');
+            return;
+        }
+
+        const tenant = tenantResult[0];
+        const { rental_rate, total_paid } = tenant;
+
+        // Calculate the new total paid if the new amount is added
+        const newTotalPaid = total_paid + parseFloat(amount);
+
+        // Check if the new total exceeds the rental rate
+        if (newTotalPaid > rental_rate) {
+            res.status(400).send(`Payment exceeds the rental rate. Maximum you can pay is: ${rental_rate - total_paid}`);
+            return;
+        }
+
+        // If the payment is valid, insert the new payment
+        const paymentInsertQuery = `
+            INSERT INTO payments (tenant_id, house_id, amount_paid,invoice, payment_date)
+            VALUES (?, ?, ?,?, NOW());
+        `;
+
+        db.query(paymentInsertQuery, [tenant.p_id, tenant.houseno, amount,invoice], (err, result) => {
+            if (err) {
+                console.error('Error inserting payment:', err);
+                res.status(500).send('Internal server error');
+                return;
+            }
+
+            // If the tenant has paid the full rental rate, prompt them to pay for the next month
+            if (newTotalPaid === rental_rate) {
+                res.status(200).send('Payment successful! The current rent is fully paid. You can now pay for the next month.');
+            } else {
+                res.status(200).send(`Payment successful! You have paid ${newTotalPaid} out of ${rental_rate}.`);
+            }
+        });
+    });
+});
+
 
 // permit
 // app.get('/config', (req, res) => {
@@ -307,6 +404,6 @@ route.get('/logout', (req, res) => {
 
 
 //  create server to listen to
-app.listen(4002,()=>{
-    console.log('access the site via http://localhost:4002');
+app.listen(4003,()=>{
+    console.log('access the site via http://localhost:4003');
 });

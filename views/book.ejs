@@ -33,7 +33,7 @@
 
         .wrapper {
             margin: 20px auto;
-            max-width: 1200px;
+            max-width: 1500px;
             background: #fff;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -103,6 +103,39 @@
         #suggestions .list-group-item {
             cursor: pointer;
         }
+
+        #mpesaForm {
+            display: none;
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #mpesaForm input {
+          width: 100%;
+          padding: 10px;
+          margin: 10px 0;
+          
+        }
+
+        #mpesaForm button {
+             padding: 10px;
+             background-color: #4CAF50;
+             color: white;
+             border: none;
+             cursor: pointer;
+             margin-left: 10px;
+             width: 240px;
+        }
+        #mpesaForm:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 
@@ -113,8 +146,8 @@
                 <div id="liveclock">25.07.2024 19:55:35</div>
                 <div><strong>Devpos</strong></div>
                 <div>
-                    <a href="#" id="change_password" class="mr-3">username</a>
-                    <a href="#" id="logout">Logout</a>
+                    <!-- <a href="#" id="change_password" class="mr-3">username</a>
+                    <a href="#" id="logout">Logout</a> -->
                 </div>
             </div>
         </div>
@@ -122,6 +155,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">Inventory</a>
+        <a href="/h">Dashboard</a>
         <!-- Navbar content omitted for brevity -->
         
     </nav>
@@ -134,12 +168,12 @@
                 <input type="text" class="form-control" id="itemSearch" placeholder="Type item name or scan barcode" autocomplete="off">
                 <div id="suggestions" class="list-group"></div>
             </div>
-            <button type="button" class="btn btn-primary" id="addItemButton">Add Item</button>
+            <!-- <button type="button" class="btn btn-primary" id="addItemButton">Add Item</button> -->
         </form>
 
         <table class="table table-bordered table-striped sales-table">
             <thead>
-                <tr>
+                <tr >
                     <th>Delete</th>
                     <th>Item #</th>
                     <th>Item Name</th>
@@ -150,36 +184,40 @@
                    
                 </tr>
             </thead>
-            <tbody id="cartContents">
+            <tbody id="cartContents" >
                 <!-- Sales items will be populated here -->
             </tbody>
         </table>
         <!-- Panel for additional sales options omitted for brevity -->
-       <form id="salesForm" method="POST" action="/submit-sale">
-    <div class="form-group">
-        <label for="comment">Comment</label>
-        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
-    </div>
-    <div class="form-group">
-        <label for="paymentType">Payment Type</label>
-        <select class="form-control" id="paymentType" name="paymentType">
-            <option value="Cash">Cash</option>
-            <option value="Mpesa">Mpesa</option>
-            <option value="Check">Check</option>
-            <option value="Debit Card">Debit Card</option>
-            <option value="Credit Card">Credit Card</option>
-            <option value="Due">Due</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="paymentValue">Payment Value</label>
-        <input type="text" class="form-control" id="paymentValue" name="paymentValue">
-    </div>
-    <input type="hidden" id="encryptedCartItems" name="encryptedCartItems" value="">
-    <button type="submit" class="btn btn-success" id="printReceiptBtn">Print Receipt</button>
-    <button type="button" class="btn btn-danger" id="cancelReceiptButton">Clear Cat</button>
-    
-</form>
+        <form id="salesForm" method="POST" action="/submit-sale">
+            <div class="form-group">
+                <label for="comment">Transaction ID</label>
+                <textarea class="form-control" id="comment" name="comment" rows="1"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="paymentType">Payment Type</label>
+                <select class="form-control" id="paymentType" name="paymentType">
+                    <option value="Cash">Cash</option>
+                    <option value="Mpesa">Mpesa</option>
+                    <option value="bank"disabled >Bank</option>
+                    <option value="credit"disabled >Credit</option>
+                    <!-- <option value="Credit Card">Credit Card</option> -->
+                    <option value="Due" disabled>Due</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="paymentValue">Payment Value</label>
+                <input type="text" class="form-control" id="paymentValue" name="paymentValue">
+            </div>
+            <label for="mpesaCheck">
+                <input type="checkbox" id="mpesaCheck"> M-pesa Payment
+            </label>
+            
+            <input type="hidden" id="encryptedCartItems" name="encryptedCartItems" value="">
+            <button type="submit" class="btn btn-success" id="printReceiptBtn" onclick="clearCartAndSubmit()">Print Receipt</button>
+            <button type="button" class="btn btn-danger" id="cancelReceiptButton">Clear Cat</button>
+            
+        </form>
 
     </div>
     </div>
@@ -195,7 +233,22 @@
     <hr>
     <p style="text-align: center;">Thank you for your purchase!</p>
 </div>
+<!-- <h1>mpesa payment</h1> -->
 
+<div id="mpesaForm">
+    <h3>M-pesa Payment</h3>
+    <form action="/stk" method="post" id="salesForm">
+    <label for="phone">Phone Number</label>
+    <input type="tel" name="phone" id="phoneNumber" required placeholder="Enter phone Number">
+    <label for="amount">Amount:</label>
+<input type="number" name="amount" id="amount" placeholder="Enter amount" required>
+<button type="submit">M-pesa Payment</button>
+
+    </form>
+</div>
+
+
+<!-- <h1>End mpesa payment</h1> -->
     <footer class="footer mt-auto py-3">
         <div class="container text-center">
             <span class="text-muted">&copy; 2020 - 2024 · <a href="#" target="_blank">DEVPOS</a> V 1.0.0</span>
@@ -206,6 +259,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script src="/vendors/salesUpdate/sales.js"></script>
 <script>
+    
 document.getElementById('printReceiptBtn').addEventListener('click', function() {
     generateReceipt();
     printReceipt();
@@ -262,31 +316,55 @@ function printReceipt() {
 
         // Submit the data after printing
         submitData();
+    
+       
     };
 }
 
 function submitData() {
+    stkPush();
     // Encrypt and set cart items in the hidden input field
     const encryptionKey = '3ncryption@key'; // Replace with your encryption key
     let encryptedCartItems = localStorage.getItem('cartItems');
     document.getElementById('encryptedCartItems').value = encryptedCartItems;
 
+
+    
     // Clear the cart and submit the form
-    clearCartAndSubmit();
+   // clearCartAndSubmit();
 }
+
+
 
 function clearCartAndSubmit() {
+    localStorage.clear()
     // Clear the cart
-    document.getElementById('cartContents').innerHTML = '';
+    // document.getElementById('cartContents').innerHTML = '';
 
-    // Clear the input fields
-    document.getElementById('comment').value = '';
-    document.getElementById('paymentType').selectedIndex = 0;
-    document.getElementById('paymentValue').value = '';
+    // // Clear the input fields
+    // document.getElementById('comment').value = '';
+    // document.getElementById('paymentType').selectedIndex = 0;
+    // document.getElementById('paymentValue').value = '';
 
-    // Submit the form
-    document.getElementById('salesForm').submit();
+    // // Submit the form
+    // document.getElementById('salesForm').submit();
 }
+//stk processing
+// get the checkbox and form elements
+
+const mpesaCheck = document.getElementById('mpesaCheck');
+const mpesaForm = document.getElementById('mpesaForm');
+// event listener - hide the form based on the checkbox state
+mpesaCheck.addEventListener('change',function(){
+     if(mpesaCheck.checked){
+        mpesaForm.style.display = 'block'; //show the form
+     }else{
+        mpesaForm.style.display = 'none'; //hide the form 
+     }
+}
+
+)
+
 
 
 </script>
@@ -294,4 +372,3 @@ function clearCartAndSubmit() {
 </body>
 
 </html>
-
