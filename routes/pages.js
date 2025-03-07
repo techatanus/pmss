@@ -20,10 +20,16 @@ route.use(session({
   cookie: { secure: false } // Set to true if using HTTPS
 }));
 
-
+//login form
 route.get('/', (req, res) => {
   res.render('./home');
 });
+
+
+// reset password
+route.get('/reset',(req,res,next)=>{
+  res.render('./reset')
+})
 
 // categupate
 route.get('/updt',(req,res)=>{
@@ -150,26 +156,34 @@ route.get('/editrole',(req,res) => {
   
 });
 
-route.get('/h', checkPermission('manageSales'), (req, res) => {
-    // Log permissions to confirm it's set
-    const username = req.session.user ? req.session.user.username : 'Guest';
-    console.log('Permissions:', req.session.user ? req.session.user.permissions : 'No permissions found');
-    db.query(" SELECT si.sale_id, p.p_name AS product, si.quantity, si.price,(si.quantity * si.price) AS total,s.payment_type AS payment_mode, s.date,(p.p_bp * si.quantity) as profit FROM sales_items si JOIN products p ON si.product_id = p.p_id JOIN dev_sales s ON si.sale_id = s.id",(err,rs)=>{
-          // Ensure permissions are passed to the template
-        db.query("SELECT COUNT(p_name)as tenants,COUNT(p_category)as rooms FROM products;",(err,results)=>{
-           if(err){
-            console.log('error fetching data')
-           }else{
-            res.render('./index', { permissions: req.session.user ? req.session.user.permissions : [], username:req.session.user , sales : rs, result :results[0],username });   
-           }
-        })
-   
-    })
+// route.get('/h', checkPermission('viewAllReports'), (req, res) => {
+//     // Log permissions to confirm it's set
+//     const username = req.session.user ? req.session.user.username : 'Guest';
+//     console.log('Permissions:', req.session.user ? req.session.user.permissions : 'No permissions found');
+//   res.send(`
+//   <script>
+//   window.location.href='/index'
+// </script>
+//   `)
 
+// });
+
+route.get('/h', checkPermission('viewAllReports'), (req, res) => {
+  const user = req.session.user;
+  console.log('User:', user);
+  console.log('Permissions:', user ? user.permissions : 'No permissions found');
+
+  res.send(`
+  <script>
+      console.log("Redirecting to /index...");
+      window.location.href='/index';
+  </script>
+  `);
 });
 
+
 // Products - Assuming "viewProducts" permission is required
-route.get('/t', checkPermission('viewStock'), (req, res) => {
+route.get('/t', checkPermission('viewTenants'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   
   db.query('SELECT * FROM products', (err, result) => {
@@ -188,20 +202,20 @@ route.get('/t', checkPermission('viewStock'), (req, res) => {
       }
   });
 });
-// Sales - "manageSales" permission
-route.get('/sales', checkPermission('manageSales'), (req, res) => {
+// Sales - "manageProperties" permission
+route.get('/sales', checkPermission('manageProperties'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./book',{username});
 });
 
 // //  admin
-route.get('/sup', checkPermission('configuration'),(req,res)=>{
+route.get('/sup', checkPermission('configureSystem'),(req,res)=>{
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./super',{username});
   
  });
 
- route.get('/returnItem/:id',checkPermission('manageSales'),(req,res,next)=>{
+ route.get('/returnItem/:id',checkPermission('manageProperties'),(req,res,next)=>{
   const username = req.session.user ? req.session.user.username : 'Guest';
  const salesId = req.params.id;
  const sql = 'SELECT * FROM sales_items WHERE sale_id = ?';
@@ -216,101 +230,90 @@ console.log('error retrieving data');
   
  })
 
-//------ROUTES FOR DIFFERENT URI'S-----------
 
-// route.get('/',(req,res)=>{
-//   res.render('./home');
-  
-//     // res.render('./form');
-//  });
-// //  cashier
-//  route.get('/h',(req,res)=>{
-//   res.render('./index');
-  
-//     // res.render('./form');
-//  });
-// //  products
-// route.get('/t',(req,res)=>{
-//    db.query('SELECT * FROM products',(err,result)=>{
-//     if(err){
-//    console.log('error retrieving data');
-//     }else{
-//       db.query('SELECT * FROM p_categories',(err,rs)=>{
-//         if(err){
-//           console.log('error retrieving sample');
-//         }else{
-//           db.query('SELECT * FROM suppliers',(err,rss)=>{
-//             res.render('./table', {addedProduct : result, items : rs, sups:rss});
-//           })
-//         }
-//        })
-//     }
-    
-//    })
-//     // res.render('./form');
-//  });
-// //  sales
-// route.get('/sales',(req,res)=>{
-//   res.render('./book');
-  
-//     // res.render('./form');
-//  });
-// //  reports
-// route.get('/rep',(req,res)=>{
-//   res.render('./reports');
-//  });
-// //  customer
-// route.get('/customers',(req,res)=>{
-//   res.render('./customers');
-  
-//  });
-// //  settings
-
-  route.get('/settings',checkPermission('configuration'),(req,res)=>{
+  route.get('/settings',checkPermission('configureSystem'),(req,res)=>{
     const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./settings',{username});
   
  });
 
 
-// Reports - "viewReports" permission
-route.get('/rep', checkPermission('viewReports'), (req, res) => {
+// Reports - "viewAllReports" permission
+route.get('/rep', checkPermission('viewAllReports'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./reports',{username});
 });
 
-// Customers - "manageCustomers" permission
-route.get('/customers', checkPermission('manageCustomers'), (req, res) => {
+// Customers - "updateTenants" permission
+route.get('/customers', checkPermission('updateTenants'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./customers',{username});
 });
 
-// Settings - "configuration" permission (or any relevant permission for settings)
-// route.get('/settings', checkPermission('configuration'), (req, res) => {
-//   res.render('./settings');
-// });
+// Settings - "configureSystem" permission (or any relevant permission for settings)
+route.get('/settings', checkPermission('configureSystem'), (req, res) => {
+  res.render('./settings');
+});
 
 // Admin/SuperAdmin - "adminAccess" or "superAdminAccess" permission
 // route.get('/sup', checkPermission('adminAccess'), (req, res) => {
 //   res.render('./super');
 // });
 
-// Inventory Management - "viewStock" permission for Store Keepers
-route.get('/inventory', checkPermission('viewStock'), (req, res) => {
-  const username = req.session.user ? req.session.user.username : 'Guest';
-  const st = 'received';
+// Inventory Management - "viewTenants" permission for Store Keepers
+// route.get('/inventory', checkPermission('viewTenants'), (req, res) => {
+//   const username = req.session.user ? req.session.user.username : 'Guest';
+//   const st = 'received';
   
-  db.query('SELECT t.p_id, t.p_name,p.payment_date as date,t.houseno, COALESCE(SUM(p.amount_paid), 0) AS total_paid FROM products t LEFT JOIN payments p ON t.p_id = p.tenant_id GROUP BY t.p_id, p.tenant_id',(err, result) => {
-    if(err) throw err;
-    db.query('SELECT * FROM houses WHERE status < 1',(err,casups)=>{
-      res.render('./invent', { addedProduct: result,casup : casups, username });
-    })
+//   db.query('SELECT t.p_id, t.p_name,p.payment_date as date,t.houseno, COALESCE(SUM(p.amount_paid), 0) AS total_paid FROM products t LEFT JOIN payments p ON t.p_id = p.tenant_id GROUP BY t.p_id, p.tenant_id',(err, result) => {
+//     if(err) throw err;
+//     db.query('SELECT * FROM houses WHERE status < 1',(err,casups)=>{
+//       if(err) throw err;
+//       db.query('SELECT * FROM p_categories',(err,cats)=>{
+//         res.render('./invent', { addedProduct: result,casup : casups, cat:cats, username });
+//       })
+     
+//     })
       
 
+//   });
+// });
+
+
+route.get('/inventory', checkPermission('viewTenants'), (req, res) => {
+  const username = req.session.user ? req.session.user.username : 'Guest';
+
+  db.query(`SELECT t.p_id, t.p_name, p.payment_date AS date, t.houseno, 
+                   COALESCE(SUM(p.amount_paid), 0) AS total_paid 
+            FROM products t 
+            LEFT JOIN payments p ON t.p_id = p.tenant_id 
+            WHERE status = 1
+            GROUP BY t.p_id, p.tenant_id`, (err, result) => {
+    if (err) throw err;
+
+    db.query('SELECT * FROM houses WHERE status IN (0, 2)', (err, casups) => {
+      if (err) throw err;
+
+      // Ensure categories are linked to houses
+      db.query('SELECT p.*, h.houseno FROM p_categories p LEFT JOIN houses h ON p.name = h.category', (err, cats) => {
+        if (err) throw err;
+
+        res.render('./invent', { 
+          addedProduct: result, 
+          casup: casups, 
+          cat: cats, 
+          username 
+        });
+      });
+    });
   });
 });
+
+
+
+
 // view category
-route.get('/categ', checkPermission('viewStock'), (req, res) => {
+route.get('/categ', checkPermission('viewTenants'), (req, res) => {
   db.query('SELECT * FROM p_categories', (err, result) => {
     const username = req.session.user ? req.session.user.username : 'Guest';
       res.render('./categ', { addedProduct: result , username});
@@ -318,16 +321,16 @@ route.get('/categ', checkPermission('viewStock'), (req, res) => {
 });
 
 // Roles and Permissions - "manageRoles" permission
-route.get('/roles', checkPermission('configuration'), (req, res) => {
+route.get('/roles', checkPermission('configureSystem'), (req, res) => {
   db.query('SELECT * FROM d_roles', (err, rs) => {
     const username = req.session.user ? req.session.user.username : 'Guest';
       res.render('./roles', { items: rs , username});
   });
 });
 
-// Manage User Role - "configuration" permission
+// Manage User Role - "configureSystem" permission
 // manage-user-role
-route.get('/manage',checkPermission('configuration'),(req, res, next) => {
+route.get('/manage',checkPermission('configureSystem'),(req, res, next) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
     db.query('SELECT * FROM d_roles', (err, rs) => {
         if (err) {
@@ -376,15 +379,21 @@ route.get('/manage',checkPermission('configuration'),(req, res, next) => {
 });
 
 
-// Manage Supply - "manageSuppliers" permission
-route.get('/supply', checkPermission('manageSuppliers'), (req, res) => {
+// Manage Supply - "manageContracts" permission
+route.get('/supply', checkPermission('manageContracts'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   db.query(`      
-  SELECT t.p_name AS tenant, h.houseno, SUM(p.amount_paid) AS total_paid,(h.price - IFNULL(SUM(p.amount_paid), 0)) AS  balance_due,h.price,t.date
-  FROM products t
-  JOIN houses h ON trim(t.houseno) = trim(h.houseno)
-  LEFT JOIN payments p ON p.tenant_id = t.p_id
-  GROUP BY t.p_id`, (err, rs) => {
+ 
+  SELECT 
+    t.p_name AS tenant,h.houseno,
+    COALESCE(SUM(p.amount_paid), 0) AS total_paid,
+    COALESCE(h.price - SUM(p.amount_paid), h.price) AS balance_due,h.price,t.date
+FROM products t
+JOIN houses h ON t.houseno = h.houseno AND t.category = h.category
+LEFT JOIN payments p ON t.p_id = p.tenant_id
+WHERE h.status = 1
+GROUP BY t.p_id, t.p_name, h.price;
+  `, (err, rs) => {
      if(err) throw err;
      const sql = 'SELECT t.p_id, t.p_name,p.payment_date as date,p.invoice, COALESCE(p.amount_paid ) as total FROM products t  JOIN  payments p ON t.p_id = p.tenant_id WHERE p.amount_paid > 0 ';
       db.query(sql,(err,result) =>{
@@ -395,8 +404,8 @@ route.get('/supply', checkPermission('manageSuppliers'), (req, res) => {
   });
 });
 
-// Users Management - "viewUsers" or "manageUsers" permission
-route.get('/users', checkPermission('viewUsers'), async (req, res) => {
+// Users Management - "viewTenants" or "manageUsers" permission
+route.get('/users', checkPermission('viewTenants'), async (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   await db.query('SELECT * FROM dev_users', (err, rs) => {
       if (err) {
@@ -410,13 +419,13 @@ route.get('/users', checkPermission('viewUsers'), async (req, res) => {
 });
 
 // Bulk Upload - "bulkUpload" permission
-route.get('/bulk', checkPermission('configuration'), (req, res) => {
+route.get('/bulk', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./file',{username});
 });
 
-// System Configuration - "configuration" permission (usually for SuperAdmin)
-route.get('/con', checkPermission('configuration'), (req, res) => {
+// System configureSystem - "configureSystem" permission (usually for SuperAdmin)
+route.get('/con', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./config',{username});
 });
@@ -427,37 +436,37 @@ route.get('/info',(req, res) => {
   res.render('./info',{username});
 });
 
-route.get('/barcode', checkPermission('configuration'), (req, res) => {
+route.get('/barcode', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./barcode',{username});
 });
 
-route.get('/localization', checkPermission('configuration'), (req, res) => {
+route.get('/localization', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./localization',{username});
 });
 
-route.get('/invoices', checkPermission('configuration'), (req, res) => {
+route.get('/invoices', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./invoices',{username});
 });
 
-route.get('/general', checkPermission('configuration'), (req, res) => {
+route.get('/general', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./general',{username});
 });
 
-route.get('/receipt', checkPermission('configuration'), (req, res) => {
+route.get('/receipt', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./receipt',{username});
 });
 
-route.get('/tableSetting', checkPermission('configuration'), (req, res) => {
+route.get('/tableSetting', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./tableSetting',{username});
 });
 
-route.get('/taxes', checkPermission('configuration'), (req, res) => {
+route.get('/taxes', checkPermission('configureSystem'), (req, res) => {
   const username = req.session.user ? req.session.user.username : 'Guest';
   res.render('./taxes',{username});
 });

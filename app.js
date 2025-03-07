@@ -5,6 +5,8 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const { required } = require('nodemon/lib/config');
 const CryptoJS = require('crypto-js');
+const bcrypt = require("bcrypt");
+const axios = require('axios');
 
 
  const app = express();
@@ -13,6 +15,7 @@ const CryptoJS = require('crypto-js');
 
  app.use(bodyParser.urlencoded({extended : true}));
  app.use(bodyParser.json()); // Add this to parse JSON data
+ 
 // Import your pages route
 const route = require('./routes/pages');
 const db = require('./util/db');
@@ -30,7 +33,10 @@ app.set('view engine','ejs');
 
 
 
-
+// profile
+app.get('/profile',(req,res,next)=>{
+    res.render('./profile')
+})
 //upload bulk products
 app.post('/upload', upload.single('bulkFile'), (req, res) => {
     const filePath = req.file.path;
@@ -107,9 +113,13 @@ app.get('/search-products', (req, res) => {
     });
 });
 
+// view tenant details separately
+app.get('/viewtenant',(req,res)=>{
+    const id = req.params.id;
+    console.log(id);
+})
 
 
-// sales submission
 // Route to handle form submission
 app.post('/submit-sale', (req, res) => {
     const { comment, paymentType, paymentValue, encryptedCartItems } = req.body;
@@ -225,36 +235,44 @@ app.get('/report', (req, res) => {
             break;
         case 'rentalBalance':
             query = `
-            SELECT t.p_name AS tenant, h.houseno,h.category,(h.price - IFNULL(SUM(p.amount_paid), 0)) AS  balance_due,t.date
-            FROM products t
-            JOIN houses h ON trim(t.houseno) = trim(h.houseno)
-            LEFT JOIN payments p ON p.tenant_id = t.p_id
-            GROUP BY t.p_id
+SELECT 
+    t.p_name AS tenant,h.houseno,
+    COALESCE(SUM(p.amount_paid), 0) AS total_paid,
+    COALESCE(h.price - SUM(p.amount_paid), h.price) AS balance_due,t.date
+FROM products t
+JOIN houses h ON t.houseno = h.houseno AND t.category = h.category
+LEFT JOIN payments p ON t.p_id = p.tenant_id
+WHERE h.status IN (1, 2)
+GROUP BY t.p_id, t.p_name, h.price;
+
+
             `;
             break;
         case 'vacantHouses':
             query = `
             SELECT h.houseno, h.category, h.description
             FROM houses h
-            LEFT JOIN products t ON h.houseno = t.houseno
-            WHERE h.status  < 1;
+            LEFT JOIN products t ON h.category = t.category
+            WHERE h.status IN (0, 2)
+            GROUP BY h.id;
+            
             `;
             break;
         case 'totalPaymentsByTenant':
             query = `
-            SELECT t.p_name AS tenant, h.houseno, COALESCE(SUM(p.amount_paid),0) AS total_paid,(h.price - IFNULL(SUM(p.amount_paid), 0)) AS                  balance_due
-            FROM houses h
-            JOIN products t ON trim(h.houseno) = trim(t.houseno)
-           LEFT JOIN payments p ON p.tenant_id = t.p_id
-              GROUP BY t.p_name
+   
+        SELECT t.p_name AS tenant,  t.houseno,SUM(p.amount_paid) AS total_paid
+       FROM payments p
+        JOIN products t ON p.tenant_id = t.p_id
+         GROUP BY t.p_name;
             `;
             break;
         case 'paymentHistory':
             query = `
-            SELECT t.p_name AS tenant, h.houseno, p.amount_paid, p.payment_date
-            FROM houses h
-            JOIN products t ON trim(h.houseno) = trim(t.houseno)
-            JOIN payments p ON p.tenant_id = t.p_id;
+            SELECT t.p_name AS tenant,p.amount_paid, p.payment_date FROM
+          payments p
+            JOIN products t ON trim(p.tenant_id) = trim(t.p_id)
+            
             `;
             break;
         default:
@@ -281,13 +299,12 @@ app.post('/pay', (req, res) => {
     // Fetch the tenant's details, including the rental rate and total paid (even if no payments exist)
     const tenantQuery = `
     SELECT t.p_id, t.p_name, h.houseno, h.price AS rental_rate, 
-    COALESCE(SUM(p.amount_paid), 0) AS total_paid
+    COALESCE(p.amount_paid, 0) AS total_paid
 FROM products t
 JOIN houses h ON TRIM(t.houseno) = TRIM(h.houseno)
 LEFT JOIN payments p ON t.p_id = p.tenant_id
 WHERE t.p_name = ?
-
-        GROUP BY t.p_id, h.houseno;
+       GROUP BY t.p_id, h.houseno;
     `;
 
     db.query(tenantQuery, [category], (err, tenantResult) => {
@@ -338,51 +355,298 @@ WHERE t.p_name = ?
     });
 });
 
+// reset password
+app.post("/update-password", async (req, res) => {
+    const { name, pass, conpass } = req.body;
+    
 
+    if (!name || !pass || !conpass) {
+        return res.status(400).json({ message: "Name, password, and confirm password are required" });
+    }
+
+    if (pass !== conpass) {
+        return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(pass, 10);
+        const sql = "UPDATE dev_users SET u_pass = ? WHERE u_name = ?";
+
+        db.query(sql, [hashedPassword, name], (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: "Database error" });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            res.render('./home')
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error hashing password" });
+    }
+});
 // permit
-// app.get('/config', (req, res) => {
-//     const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
-//     const permissionsQuery = 'SELECT permission FROM d_access WHERE department = ?';
+app.get('/config', (req, res) => {
+    const rolesQuery = 'SELECT DISTINCT role FROM d_roles';
+    const permissionsQuery = 'SELECT permission FROM d_access WHERE department = ?';
 
-//     db.query(rolesQuery, (err, roles) => {
+    db.query(rolesQuery, (err, roles) => {
+        if (err) {
+            console.error('Error fetching roles:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        if (roles.length === 0) {
+            return res.status(404).send('No roles found.');
+        }
+
+        let selectedRole = req.query.department || roles[0].role;
+        db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
+            if (err) {
+                console.error('Error fetching permissions:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+
+            const permissions = {
+                'Cashier': ['collectRent', 'viewReceipts', 'generateInvoice'],
+                'Manager': ['viewTenants', 'manageProperties', 'editRentalReports', 'managePayments', 'manageContracts'],
+                'Admin': ['deleteTenants', 'updateTenants', 'updateHouses'],
+                'SuperAdmin': ['addUsers', 'configureSystem', 'viewAllReports'],
+                'Caretaker': ['viewHouses', 'updateHouseStatus'],
+                'Property Auditor': ['viewRentalBalance', 'viewOccupiedHouses', 'viewVacantHouses']
+            };
+
+            const selectedPermissions = existingPermissions.map(perm => perm.permission);
+
+            res.render('manage', {
+                rls: roles,
+                permissions,
+                selectedRole,
+                selectedPermissions
+            });
+        });
+    });
+});
+
+// mpesa processing
+const generateToken = async (req,res,next)=>{
+
+    const consumerKey = "is5NBH6qKQ1QKwOS4qoSAFyMQzFZUq5Vl7q1JgVdGtZTadPB";
+    const consumerSecret = "GhQNTPRkhn5evqlKhglsVvQjjSC9OwYntKheELUtnbGpaFqMy1NXArtFnwd4rGMO";
+
+    const auth =  new Buffer.from(`${consumerKey}:${consumerSecret}`).toString(
+        "base64"
+      );
+  await axios.get("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",{
+     headers: {
+             authorization : `Basic ${auth}`
+     }
+  }
+  )
+  .then((response)=>{
+    console.log(response.data.access_token);
+  let token = response.data.access_token;
+    
+  })
+  .catch((err)=>{
+    console.log(err);
+    res.status(400).json(err.message);
+
+  })
+
+};
+// Express route for handling form submission
+app.post('/stk',generateToken, (req, res) => {
+    const{phone,amount} = req.body
+
+    async function sendStkPush() {
+        // const token = await generateToken();
+        const date = new Date();
+        const timestamp =
+        date.getFullYear() +
+        ("0" + (date.getMonth() + 1)).slice(-2) +
+        ("0" + date.getDate()).slice(-2) +
+        ("0" + date.getHours()).slice(-2) +
+        ("0" + date.getMinutes()).slice(-2) +
+        ("0" + date.getSeconds()).slice(-2);
+    
+        //you can use momentjs to generate the same in one line 
+   
+        const shortCode =174379; //sandbox -174379
+        const passkey = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+        
+  
+        const stk_password = new Buffer.from(shortCode + passkey + timestamp).toString(
+              "base64"
+            );
+  
+        //choose one depending on you development environment
+        const url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        // const url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+      
+        const headers = {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        };
+      
+        const requestBody = {
+          "BusinessShortCode": shortCode,
+          "Password": stk_password,
+          "Timestamp": timestamp,
+          "TransactionType": "CustomerPayBillOnline", //till "CustomerBuyGoodsOnline"
+          "Amount": `${amount}`,
+          "PartyA": `${phone}`,
+          "PartyB": shortCode,
+          "PhoneNumber": "254798741201",
+          "CallBackURL": "https://yourwebsite.co.ke/callbackurl",
+          "AccountReference": "account",
+          "TransactionDesc": "test"
+        };
+      
+        try {
+          const response = await axios.post(url, requestBody, { headers });
+          return response.data;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+});
+
+// checkout tenants
+// app.get("/checkout", (req, res) => {
+//     const tenant_id = req.query.id;
+//     console.log("Received Tenant ID:", tenant_id);
+
+//     if (!tenant_id) {
+//         return res.status(400).json({ message: "Tenant ID is required" });
+//     }
+
+//     // Ensure tenant_id is a valid integer
+//     const tenantIdInt = parseInt(tenant_id, 10);
+//     if (isNaN(tenantIdInt)) {
+//         return res.status(400).json({ message: "Invalid Tenant ID format" });
+//     }
+
+//     // Get tenant details
+//     db.query("SELECT houseno, category FROM products WHERE p_id = ?", [tenantIdInt], (err, result) => {
 //         if (err) {
-//             console.error('Error fetching roles:', err);
-//             return res.status(500).send('Internal Server Error');
+//             console.error("Error fetching tenant details:", err);
+//             return res.status(500).json({ message: "Database query error", error: err.message });
 //         }
 
-//         if (roles.length === 0) {
-//             return res.status(404).send('No roles found.');
+//         console.log("Query Result:", result);
+
+//         if (!result || result.length === 0) {
+//             return res.status(404).json({ message: "Tenant not found in the database" });
 //         }
 
-//         let selectedRole = req.query.department || roles[0].role;
-//         db.query(permissionsQuery, [selectedRole], (err, existingPermissions) => {
+//         const house_id = result[0].houseno;
+//         const category = result[0].category;
+
+//         console.log(`House ID: ${house_id}, Category: ${category}`);
+
+//         // Update tenant status to 'vacated'
+//         db.query("UPDATE products SET status = 'vacated' WHERE p_id = ?", [tenantIdInt], (err) => {
 //             if (err) {
-//                 console.error('Error fetching permissions:', err);
-//                 return res.status(500).send('Internal Server Error');
+//                 console.error("Error updating tenant status:", err);
+//                 return res.status(500).json({ message: "Failed to update tenant status", error: err.message });
 //             }
 
-//             const permissions = {
-//                 'Cashier': ['manageSales', 'viewReports', 'PrintReceipt'],
-//                 'Manager': ['viewUsers', 'manageStock', 'editReports', 'manageSales', 'manageSuppliers', 'manageCustomers'],
-//                 'Admin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSuppliers', 'manageCustomers'],
-//                 'SuperAdmin': ['viewUsers', 'deleteUsers', 'updateUsers', 'AddUsers', 'manageStock', 'editReports', 'manageSales', 'viewReports', 'manageSuppliers', 'manageCustomers', 'configuration'],
-//                 'Waiters': ['viewSales', 'PrintReceipt'],
-//                 'Store Keeper': ['manageStock', 'viewStock'],
-//                 'Chefs': ['viewStock', 'viewSales'],
-//                 'Washers': ['viewStock', 'manageSuppliers']
-//             };
+//             // Update house status to 'vacant' (0)
+//             db.query("UPDATE houses SET status = 0 WHERE houseno = ? AND category = ?", [house_id, category], (err) => {
+//                 if (err) {
+//                     console.error("Error updating house status:", err);
+//                     return res.status(500).json({ message: "Failed to update house status", error: err.message });
+//                 }
 
-//             const selectedPermissions = existingPermissions.map(perm => perm.permission);
-
-//             res.render('manage', {
-//                 rls: roles,
-//                 permissions,
-//                 selectedRole,
-//                 selectedPermissions
+//                 res.status(200).json({ message: "Tenant checked out successfully" });
 //             });
 //         });
 //     });
 // });
+
+app.get("/checkout", (req, res) => {
+    const tenant_id = req.query.id;
+    console.log("Received Tenant ID:", tenant_id);
+
+    if (!tenant_id) {
+        return res.status(400).json({ message: "Tenant ID is required" });
+    }
+
+    const tenantIdInt = parseInt(tenant_id, 10);
+    if (isNaN(tenantIdInt)) {
+        return res.status(400).json({ message: "Invalid Tenant ID format" });
+    }
+
+    // Get tenant details: house number & category
+    db.query("SELECT houseno, category FROM products WHERE p_id = ?", [tenantIdInt], (err, result) => {
+        if (err) {
+            console.error("Error fetching tenant details:", err);
+            return res.status(500).json({ message: "Database query error", error: err.message });
+        }
+
+        if (!result || result.length === 0) {
+            return res.status(404).json({ message: "Tenant not found in the database" });
+        }
+
+        const house_id = result[0].houseno;
+        const category = result[0].category;
+
+        // Calculate total amount paid by the tenant
+        db.query("SELECT SUM(amount_paid) AS total_paid FROM payments WHERE tenant_id = ?", [tenantIdInt], (err, paymentResult) => {
+            if (err) {
+                console.error("Error fetching payments:", err);
+                return res.status(500).json({ message: "Error fetching payment details", error: err.message });
+            }
+
+            const totalPaid = paymentResult[0].total_paid || 0; // Default to 0 if no payments
+
+            // Get the house price
+            db.query("SELECT price FROM houses WHERE houseno = ? AND category = ?", [house_id, category], (err, houseResult) => {
+                if (err) {
+                    console.error("Error fetching house price:", err);
+                    return res.status(500).json({ message: "Error fetching house details", error: err.message });
+                }
+
+                if (!houseResult || houseResult.length === 0) {
+                    return res.status(404).json({ message: "House not found" });
+                }
+
+                const housePrice = houseResult[0].price;
+                const balance = totalPaid - housePrice; // Calculate balance
+
+                console.log(`Total Paid: ${totalPaid}, House Price: ${housePrice}, Balance: ${balance}`);
+
+                // Check if the balance is negative
+                if (balance < 0) {
+                    return res.status(400).json({ message: "Tenant cannot be checked out due to outstanding rent balance" });
+                }
+
+                // Update tenant status to 'vacated'
+                db.query("UPDATE products SET status = 'vacated' WHERE p_id = ?", [tenantIdInt], (err) => {
+                    if (err) {
+                        console.error("Error updating tenant status:", err);
+                        return res.status(500).json({ message: "Failed to update tenant status", error: err.message });
+                    }
+
+                    // Update house status to 'vacant' (0)
+                    db.query("UPDATE houses SET status = 2 WHERE houseno = ? AND category = ?", [house_id, category], (err) => {
+                        if (err) {
+                            console.error("Error updating house status:", err);
+                            return res.status(500).json({ message: "Failed to update house status", error: err.message });
+                        }
+
+                        res.status(200).json({ message: "Tenant checked out successfully" });
+                    });
+                });
+            });
+        });
+    });
+});
+
 
 // logout user
 route.get('/logout', (req, res) => {

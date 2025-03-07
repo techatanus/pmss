@@ -128,29 +128,30 @@
         <header>
             <h1>HouseRental        <small style="margin-left: 150px;">Welcome <%= username %></small></h1>
                         <button><a href="/logout">Logout</a></button>
+                        <button><a href="/reset">Reset Password</a></button>
         </header>
         <section id="dashboard">
             <h2>Dashboard </h2>
             <div class="cards">
                 <div class="card" style="background-color:rgb(133, 100, 19)">
                     <h2 style="color: white;">Total this month</h2>
-                    <p id="d">ksh <%= result.paid %></p>
+                    <p id="d">ksh  <%= result.paid%></p>
                 </div>
                 <div class="card" style="background-color:goldenrod;">
                     <h2 style="color: white;">Total Tenants</h2>
-                    <p><%= result.tenants %></p>
+                    <p><%= dt.occupied %></p>
                 </div>
                 <div class="card" style="background-color: yellowgreen;">
                     <h2 style="color: white;">Total Houses</h2>
-                    <p><a href="/return_s">800</a></p>
+                    <p><%= dt.total %></p>
                 </div>
                 <div class="card" style="background-color: rgb(105, 126, 64);">
                     <h2 style="color: white;">Occupied Houses</h2>
-                    <p><%= result.tenants %></p>
+                    <p><%= dt.occupied %></p>
                 </div>
                 <div class="card" style="background-color: rgb(110, 146, 25);">
                     <h2 style="color: white;">Vacant Houses</h2>
-                    <p></p>
+                     <p><%= dt.vacant %></p>
                 </div>
                 <div class="card" style="background-color: rgb(105, 134, 31);">
                     <h2 style="color: white;">Rental Balance</h2>

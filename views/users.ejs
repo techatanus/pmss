@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEVPOS - Manage Users</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -106,11 +107,11 @@
             transition: background-color 0.3s;
         }
         .user-card .actions button.edit {
-            background-color: #4CAF50;
+            background-color: white;
             color: white;
         }
         .user-card .actions button.delete {
-            background-color: #f44336;
+            background-color:white;
             color: white;
         }
         .user-card .actions button:hover {
@@ -181,7 +182,7 @@
     <main>
         <header>
             <h1>DEVPOS - Manage Users</h1>
-            <button onclick="logout()">Logout</button>
+            <button><a href="/logout">Logout</a></button>
         </header>
         <section>
             <div class="user-list">
@@ -193,8 +194,8 @@
               
               
                 <div class="actions">
-                    <button class="edit" onclick="confirm('sure you want to update the record')"><a href="/upd?id=<%=person.u_id%>">update</a></button>
-                    <button class="delete" onclick="confirm('sure to delete these record')"><a href="/deluser?id=<%=person.u_id%>">delete</a> </button>
+                    <button class="edit" onclick="return confirm('sure you want to update the record')"><a href="/upd?id=<%=person.u_id%>"><i class="fa fa-edit" title="Edit this item"></i></a></button>
+                    <button class="delete" onclick="return confirm('sure to delete these record')"><a href="/deluser?id=<%=person.u_id%>"><i class="fa fa-trash" style="color: red;" title="delete this item"></i></a> </button>
                 </div>
             </div>
          <%  }) %>

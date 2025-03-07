@@ -126,7 +126,7 @@
             <!-- <button onclick="logout()">Logout</button> -->
         </header>
         <section>
-         <p>From  <input type="date" name="startD" style="margin: 30px;">  to  <input type="date" name="endD" style="margin: 30px;"></p>
+         <p> <input type="hidden" name="startD" style="margin: 30px;">   <input type="hidden" name="endD" style="margin: 30px;"></p>
          
          <div class="report-type">
                 <button onclick="showReport('monthlyRental')">monthlyRental Report</button>
@@ -164,7 +164,7 @@
                         <tr>
                             <th>Tenant</th>
                             <th>HouseNo</th>
-                            <th>Category</th>
+                            <th>TotalPaid</th>
                             <th>Balance_due</th>
                             <th>Date</th>
                          
@@ -199,7 +199,7 @@
                             <th>Tenant</th>
                             <th>HouseNo</th>
                             <th>TotalPaid</th>
-                            <th>Balance_due</th>
+                           
         
                             
                         </tr>
@@ -215,7 +215,7 @@
                     <thead>
                         <tr>
                             <th>Tenant</th>
-                            <th>HouseNo</th>
+                            
                             <th>Amount_paid</th>
                             <th>Payment_date</th>
                         </tr>
@@ -269,7 +269,7 @@
                         <tr>
                             <td>${row.tenant}</td>
                             <td>${row.houseno}</td>
-                            <td>${row.category}</td>
+                            <td>${row.total_paid}</td>
                             <td>${row.balance_due}</td>
                             <td>${row.date}</td>
                         </tr>`;
@@ -291,7 +291,7 @@
                             <td>${row.tenant}</td>
                             <td>${row.houseno}</td>
                             <td>${row.total_paid}</td>
-                            <td>${row.balance}</td>
+                            
                           
                         </tr>`;
                 });
@@ -300,7 +300,7 @@
                     tbody.innerHTML += `
                         <tr>
                             <td>${row.tenant}</td>
-                            <td>${row.houseno}</td>
+                            
                             <td>${row.amount_paid.toLocaleString()}</td>
                             <td>${row.payment_date}</td>
                         </tr>`;

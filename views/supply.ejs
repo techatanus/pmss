@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -182,6 +183,39 @@
         .modal-content .actions button.cancel:hover {
             background-color: #d32f2f;
         }
+
+        #mpesaForm {
+            display: none;
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #mpesaForm input {
+          width: 100%;
+          padding: 10px;
+          margin: 10px 0;
+          
+        }
+
+        #mpesaForm button {
+             padding: 10px;
+             background-color: #4CAF50;
+             color: white;
+             border: none;
+             cursor: pointer;
+             margin-left: 10px;
+             width: 240px;
+        }
+        #mpesaForm:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -191,7 +225,7 @@
     <main>
         <header>
             <h1>List of payments</h1>
-            <button onclick="logout()">Logout</button>
+            <button><a href="/logout">Logout</a></button>
         </header>
         <section>
             <!-- Supplier Overview Card -->
@@ -221,9 +255,9 @@
                                 <td><%=product.p_name %></td>
                                 <td><%=product.invoice %></td>
                                 <td><%=product.total%></td>
-                               
-                                <td><a href="/delsup?id=<%= product.id %>" onclick="confirm('are you sure you want to delete this record')">delete</a></td>
-                                <td><a href="/updatesup?id=<%= product.id %>" onclick="confirm('sure you want to update the details')">Edit</a></td>
+                                <td><a href="/updatesup?id=<%= product.p_id %>" onclick=" return confirm('sure you want to update the details')"><i class="fa fa-edit" title="Edit this item"></i></a></td>
+                                <td><a href="/delsup?id=<%= product.p_id %>" onclick=" return confirm('are you sure you want to delete this record')"><i class="fa fa-trash" style="color: red;" title="delete this item"></i></a></td>
+                              
                             </tr>
                             <%  }) %>
                         <!-- Additional rows would be added here -->
@@ -253,6 +287,7 @@
                       </option>
                     <% }) %>
                   </select>
+              
                 </div>
           
                 <!-- Invoice Auto-generated -->
@@ -286,15 +321,30 @@
           
                 <!-- Actions -->
                 <div class="actions">
+                    <button type="submit" class="saves" >Print</button>
                   <button type="submit" class="save" >Save</button>
                 </div>
+                <label for="mpesaCheck">
+                    <input type="checkbox" id="mpesaCheck"> M-pesa Payment
+                </label>
               </form>
-          
+               <br>
               <button class="cancel" onclick="closeSupplierModal()">Cancel</button>
             </div>
           </div>
-          
-  
+          <!-- mpesa form -->
+          <div id="mpesaForm">
+            <h3>M-pesa Payment</h3>
+            <form action="/stk" method="post" id="salesForm">
+            <label for="phone">Phone Number</label>
+            <input type="tel" name="phone" id="phoneNumber" required placeholder="Enter phone Number">
+            <label for="amount">Amount:</label>
+        <input type="number" name="amount" id="amount" placeholder="Enter amount" required>
+        <button type="submit">M-pesa Payment</button>
+        
+            </form>
+        </div>
+  <!-- end of mpesa form -->
        
 
     </main>
@@ -351,8 +401,76 @@
     } else {
       document.getElementById('tenantDetails').style.display = 'none';
     }
+    
   }
 
+//   mpesa check
+const mpesaCheck = document.getElementById('mpesaCheck');
+const mpesaForm = document.getElementById('mpesaForm');
+// event listener - hide the form based on the checkbox state
+mpesaCheck.addEventListener('change',function(){
+     if(mpesaCheck.checked){
+        mpesaForm.style.display = 'block'; //show the form
+     }else{
+        mpesaForm.style.display = 'none'; //hide the form 
+     }
+}
+)
+
+// payment receipt
+
+
+document.querySelector('.saves').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent form submission
+    generateReceipt();
+});
+
+
+function generateReceipt() {
+    // Get form values
+    const tenant = document.getElementById('productName').value;
+    const invoice = document.getElementById('invoice').value;
+    const amount = document.getElementById('amount').value;
+    const rentalRate = document.getElementById('rentalRate').innerText;
+    const balance = document.getElementById('balance').innerText;
+    const totalPaid = document.getElementById('totalPaid').innerText;
+    const rentStarted = document.getElementById('rentStarted').innerText;
+    const houseno = document.getElementById('houseno').innerText;
+    const date = new Date().toLocaleString(); // Current date & time
+
+    // Generate receipt content
+    const receiptContent = `
+        <div style="text-align: center; font-family: Arial, sans-serif; padding: 20px;">
+            <h2>Rental Payment Receipt</h2>
+            <p><strong>Date:</strong> ${date}</p>
+            <hr>
+            <p><strong>Tenant:</strong> ${tenant}</p>
+            <p><strong>Invoice No:</strong> ${invoice}</p>
+            <p><strong>House No:</strong> ${houseno}</p>
+            <p><strong>Monthly Rent:</strong> KES ${rentalRate}</p>
+            <p><strong>Total Paid:</strong> KES ${totalPaid}</p>
+            <p><strong>Outstanding Balance:</strong> KES ${balance}</p>
+            <p><strong>Rent Started:</strong> ${rentStarted}</p>
+           
+                   
+            <hr>
+            <p>Thank you for your payment!</p>
+        </div>
+    `;
+
+    // Open print window
+    const receiptWindow = window.open('', '', 'width=400,height=600');
+    receiptWindow.document.write('<html><head><title>Receipt</title></head><body>');
+    receiptWindow.document.write(receiptContent);
+    receiptWindow.document.write('</body></html>');
+    receiptWindow.document.close();
+    receiptWindow.print();
+}
+
+
     </script>
+
+
+
 </body>
 </html>

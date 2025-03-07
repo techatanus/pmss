@@ -1,23 +1,56 @@
 const db = require('../../util/db');
-// 
-delete product
-const deleteProduct = (req,res)=>{
-    const id = req.query.id
-   const delt = 'DELETE FROM products WHERE p_id = ?';
-   db.query(delt,[id],(err,rs)=>{
-   if(err)throw err;
-   res.send(`
-   <script>
-     alert("item successfully deleted");
-     window.location.href = '/inventory';
-   </script>
- `);
-     
-   })
+//delete product
 
-}
+const deleteProduct = (req, res) => {
+    const id = req.query.id;
 
-// update product
+    // First, find the tenant's house before deletion
+    const getHouseDetails = 'SELECT houseno, category FROM products WHERE p_id = ?';
+
+    db.query(getHouseDetails, [id], (err, result) => {
+        if (err) throw err;
+
+        if (result.length === 0) {
+            res.send(`
+                <script>
+                  alert("Tenant not found!");
+                  window.location.href = '/inventory';
+                </script>
+            `);
+            return;
+        }
+
+        const { houseno, category } = result[0];
+
+        // First, delete the tenant's payment records
+        const deletePayments = 'DELETE FROM payments WHERE tenant_id = ?';
+
+        db.query(deletePayments, [id], (err, rs) => {
+            if (err) throw err;
+
+            // Now delete the tenant
+            const deleteTenant = 'DELETE FROM products WHERE p_id = ?';
+
+            db.query(deleteTenant, [id], (err, rs) => {
+                if (err) throw err;
+
+                // Now update the house status to 0 (vacant)
+                const updateHouse = 'UPDATE houses SET status = 0 WHERE houseno = ? AND category = ?';
+
+                db.query(updateHouse, [houseno, category], (err, rs) => {
+                    if (err) throw err;
+
+                    res.send(`
+                        <script>
+                          alert("Tenant and payments successfully deleted, house set to vacant.");
+                          window.location.href = '/inventory';
+                        </script>
+                    `);
+                });
+            });
+        });
+    });
+};
 
 const updateStock = (req,res)=>{
     const productId = req.query.id;
@@ -37,9 +70,9 @@ const updateStock = (req,res)=>{
 const postUpdate = (req,res)=>{
     
         const { p_id, p_name, p_category, p_bp, p_sp } = req.body;
-        const sql = 'UPDATE products SET p_name = ?, p_category = ?,  p_bp = ?, p_sp = ? WHERE p_id = ?';
+        const sql = 'UPDATE products SET p_name = ?,  p_bp = ?, p_sp = ? WHERE p_id = ?';
         
-        db.query(sql, [p_name, p_category,p_bp, p_sp,p_id], (err, result) => {
+        db.query(sql, [p_name,p_bp, p_sp,p_id], (err, result) => {
             if (err) throw err;
             res.send(`
             

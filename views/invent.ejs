@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEVPOS - Inventory Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -188,7 +189,7 @@
     <main>
         <header>
             <h1>List of Tenants </h1>
-            <button onclick="logout()">Logout</button>
+            <button><a href="/logout">Logout</a></button>
         </header>
         <section>
             <h2> Tenants </h2>
@@ -220,9 +221,10 @@
                              <td>  <%=product.total_paid %></td>
                              <td><%=product.date %></td>
                             
-                             <!-- <td><a href="" onclick="confirm('are you sure')">View</a></td> -->
-                             <td><a href="/change?id=<%=product.p_id %>" onclick="confirm('are you sure')">edit</a></td>
-                             <td><a href="/del?id=<%=product.p_id %>" onclick="confirm('are you sure')">delete</a></td>
+                             <!-- <td><a href="/viewtenant?id=<%=product.p_id %>" onclick="return confirm('are you sure')"> <i class="fa fa-eye" title="View this item"></i></a></td> -->
+                             <td><a href="/change?id=<%=product.p_id %>" onclick="return confirm('are you sure')"><i class="fa fa-edit" title="Edit this item"></i></a></td>
+                             <td><a href="/del?id=<%=product.p_id %>" onclick="return confirm('are you sure')"><i class="fa fa-trash" style="color: red;" title="delete this item"></i></a></td>
+                             <td><a href="checkout?id=<%=product.p_id%>" onclick="return confirm('are you sure you want to check out this Tenant')"> <i class="fa-solid fa-user-check" title="Checkout Tenant"></i> Checkout</a> </td>
                             </tr>
                      <%  }) %>
                     </tbody>
@@ -284,17 +286,29 @@
                     <label for="sellingPrice">Email</label>
                     <input type="email" name="sp" id="sellingPrice">
                 </div>
-              
                 <div class="form-group">
                     <label for="productName">House</label>
-                    <select  name="category" id="productName">
+                    <select name="category" id="house">
+                        <option value="">Select House</option>
                         <% casup.forEach((item)=>{ %>
-                            <option value=" <%=item.houseno %>"> <%=item.houseno %></option>
-                        <%}) %>
-                        
-                      
+                            <option value="<%= item.houseno %>"><%= item.houseno %></option>
+                        <% }) %>
                     </select>
                 </div>
+                
+                <div class="form-group">
+                    <label for="productName">Category</label>
+                    <select name="n_cats" id="category">
+                        <option value="">Select Category</option>
+                        <% cat.forEach((items) => { %>
+                            <option value="<%= items.name %>" data-house="<%= items.houseno %>">
+                                <%= items.name %>
+                            </option>
+                        <% }) %>
+                    </select>
+                    
+                </div>
+                
                 <div class="form-group">
                     <label for="expDate">Registration date</label>
                     <input type="date"   name="date" id="expDate">
@@ -364,6 +378,31 @@
         function logout() {
             // Implement logout logic
         }
+
+// toggle houses and categories
+document.addEventListener("DOMContentLoaded", function () {
+    const houseSelect = document.getElementById("house");
+    const categorySelect = document.getElementById("category");
+
+    houseSelect.addEventListener("change", function () {
+        const selectedHouse = houseSelect.value;
+        const options = categorySelect.querySelectorAll("option");
+
+        // Keep the default "Select Category" option visible
+        categorySelect.innerHTML = '<option value="">Select Category</option>';
+
+        options.forEach(option => {
+            const houseAttr = option.getAttribute("data-house");
+
+            // Append only the options that match the selected house
+            if (houseAttr && houseAttr === selectedHouse) {
+                categorySelect.appendChild(option.cloneNode(true));
+            }
+        });
+    });
+});
+
+
     </script>
 
 <!-- <script src="/vendors/purchases.js"></script> -->
@@ -448,6 +487,30 @@
 
     // Initial render of products
     renderProducts();
+
+    //iterate between houses
+    document.addEventListener("DOMContentLoaded", function () {
+        const houseSelect = document.getElementById("house");
+        const categorySelect = document.getElementById("category");
+        const allCategories = [...categorySelect.options]; // Store all category options
+
+        houseSelect.addEventListener("change", function () {
+            const selectedHouse = this.value;
+            
+            // Clear existing options
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+            
+            // Filter and add matching categories
+            allCategories.forEach(option => {
+                if (option.dataset.house === selectedHouse || option.value === "") {
+                    categorySelect.appendChild(option.cloneNode(true));
+                }
+            });
+        });
+    });
+
+
+   
 </script>
 </body>
 </html>
